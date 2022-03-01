@@ -1,0 +1,6 @@
+<div id="app">
+    <p />Hello {{ user.email}}
+    <btn hx-get='/api/secret' hx-trigger="click" hx-target="#authorization-results" class="btn btn-blue">get secrets...</btn>
+    <div id="authorization-results">Not yet fetched...</div>
+    <btn hx-post="/logout" hx-trigger="click" class="btn btn-blue" hx-target="#app">Logout...</btn>
+</div>

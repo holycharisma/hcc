@@ -1,0 +1,36 @@
+(function() {
+
+var origin = '{{ origin_domain  }}';
+var token = '{{ csrf_secret_token }}';
+
+var frame = document.getElementById("hcc-frame").contentWindow;
+var senderId = 0;
+
+function handleAck(event) {
+    if(event.origin !== origin) return;
+    if (event.data === "ack-token") {
+        window.clearInterval(senderId);
+        window.removeEventListener('message', handleAck);
+    }
+}
+
+function sendToken() {
+	frame.postMessage(token, origin);
+}
+
+frame.addEventListener('load', sendToken, true);
+senderId = setInterval(sendToken, 250);
+
+window.addEventListener('message', handleAck);
+
+function reload(event) {
+    if(event.origin !== origin) return;
+    if (event.data === "reload") {
+        window.removeEventListener('message', reload);
+        window.location.reload(true);
+    }
+}
+
+window.addEventListener('message', reload);
+
+})();
