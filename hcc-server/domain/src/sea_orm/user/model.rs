@@ -2,11 +2,12 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 
+use crate::sea_orm::user_attributes::prelude::UserAttributes;
+
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Deserialize, Serialize)]
 #[sea_orm(table_name = "user_auth")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    #[serde(skip_deserializing)]
     pub id: i32,
 
     #[sea_orm(unique, index)]
@@ -19,7 +20,23 @@ pub struct Model {
     pub active: bool
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+#[derive(Copy, Clone, Debug, EnumIter)]
+pub enum Relation {
+    UserAttributes
+}
+
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        match self {
+            Self::UserAttributes => Entity::has_one(UserAttributes).into(),
+        }
+    }
+}
+
+impl Related<UserAttributes> for Entity {
+    fn to() -> RelationDef {
+        Relation::UserAttributes.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

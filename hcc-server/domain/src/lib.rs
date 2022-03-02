@@ -1,5 +1,3 @@
 pub mod session;
 pub mod server_config;
-pub mod user;
-
-pub use sea_orm;
+pub mod sea_orm;

@@ -1,4 +1,4 @@
-use domain::user::prelude::*;
+use domain::sea_orm::user::prelude::*;
 use sea_schema::migration::prelude::*;
 
 pub struct Migration;
@@ -46,7 +46,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(User).to_owned())
+            .drop_table(Table::drop().table(User).cascade().to_owned())
             .await
     }
 }

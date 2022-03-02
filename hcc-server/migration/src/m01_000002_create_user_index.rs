@@ -1,4 +1,4 @@
-use domain::user::prelude::*;
+use domain::sea_orm::user::prelude::*;
 use sea_schema::migration::prelude::*;
 
 pub struct Migration;
