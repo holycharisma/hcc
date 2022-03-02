@@ -1,21 +1,28 @@
 use std::sync::Arc;
-use tide::Result;
+use sea_orm::{Database, DatabaseConnection, DbErr};
 
 extern crate dotenv;
 
 use dotenv::dotenv;
 use std::env;
 
-use crate::domain::server_config::ServerConfig;
+use domain::server_config::ServerConfig;
 use crate::util::jwt::{JsonWebTokenSecrets, JsonWebTokenUtil};
 
 #[derive(Clone)]
 pub struct ServerWiring {
     pub services: ServiceWiring,
+    pub db: DatabaseConnection,
     pub config: ServerConfig,
 }
 
 impl ServerWiring {
+
+    pub async fn database(config: &ServerConfig) -> Result<DatabaseConnection, DbErr> {
+        let db = Database::connect(&config.postgres_sql_connection_url).await;
+        db
+    }
+
     pub fn init_server_config() -> ServerConfig {
         dotenv().ok();
         ServerConfig {
@@ -44,11 +51,17 @@ impl ServerWiring {
         }
     }
 
-    pub async fn new(server_config: &ServerConfig) -> Result<ServerWiring> {
+    pub async fn new(server_config: &ServerConfig) -> Result<ServerWiring, tide::Error> {
         let config = server_config.to_owned();
         let server_state = ServerWiring {
             services: ServiceWiring {
                 jwt_util: Arc::new(ServiceWiring::jwt_util(&config)),
+            },
+            db: {
+                tide::log::info!("Trying to connect to sea-orm db...");
+                let db = ServerWiring::database(&config).await?;
+                tide::log::info!("sea-orm connect: OK!");
+                db
             },
             config: config,
         };

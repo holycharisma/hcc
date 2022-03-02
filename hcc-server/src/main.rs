@@ -1,11 +1,39 @@
 
-mod domain;
 mod routes;
 mod util;
 mod wiring;
 mod middleware;
 
+use domain::{user::prelude::*, server_config::ServerConfig};
+use sea_orm::EntityTrait;
+
 use wiring::ServerWiring;
+
+fn password_bytes(_plaintext: &str) -> Vec<u8> {
+    vec![]
+}
+
+async fn insert_super_user(config: &ServerConfig, wiring: &ServerWiring) -> Result<(), ()> {
+
+    let super_user_model = UserActiveModel {
+        created_at: sea_orm::Set(chrono::offset::Utc::now()),
+        email: sea_orm::Set(String::from(&config.super_user_email)),
+        username: sea_orm::Set(String::from(&config.super_user_email)),
+        password: sea_orm::Set(password_bytes(&config.super_user_password)),
+        active: sea_orm::Set(true),
+        ..Default::default()
+    };
+    
+    let operation = User::insert_many(vec![super_user_model]).exec(&wiring.db).await;
+
+    if operation.is_ok() {
+        println!("INSERTED ONE: {:?}", operation.ok());
+    } else {
+        println!("Failed to insert super user... maybe it already exists?? {:?}", operation.err());
+    }
+
+    Ok(())
+}
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
@@ -18,6 +46,8 @@ async fn main() -> tide::Result<()> {
     // is the postgres url reachable?
     // are the jwt signing keys valid?
     let server_wiring = ServerWiring::new(&config).await?;
+
+    insert_super_user(&config, &server_wiring).await.unwrap();
 
     let mut app = tide::with_state(server_wiring);
 

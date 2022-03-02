@@ -1,7 +1,7 @@
 use tide::prelude::*;
 use tide::{http::mime, Request, Response, Result};
 
-use crate::domain::session::SessionUser;
+use domain::session::SessionUser;
 use crate::wiring::ServerWiring;
 
 #[derive(Debug, Deserialize)]

@@ -1,4 +1,5 @@
-use tide::prelude::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize};
+
 
 #[derive(Serialize, Deserialize, Default, Clone)]
 pub struct SessionUser {

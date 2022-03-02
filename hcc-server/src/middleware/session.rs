@@ -3,7 +3,7 @@ use std::time::Duration;
 use tide::sessions::SessionMiddleware;
 use tide::Result;
 
-use crate::domain::server_config::ServerConfig;
+use domain::server_config::ServerConfig;
 
 pub async fn init_session_middleware(
     config: &ServerConfig,

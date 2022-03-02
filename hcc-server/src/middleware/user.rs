@@ -1,5 +1,5 @@
 use crate::wiring::ServerWiring;
-use crate::domain::session::SessionUser;
+use domain::session::SessionUser;
 
 #[derive(Default)]
 pub struct UserExtensionMiddleware {}
