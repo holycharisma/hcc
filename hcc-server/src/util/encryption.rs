@@ -5,6 +5,12 @@ use orion::errors::UnknownCryptoError;
 use orion::kex::{EphemeralServerSession, EphemeralClientSession, SecretKey};
 use serde::{Serialize, Deserialize};
 
+
+pub async fn encrypt_str(body: &str, secrets: &SharedKeyring) -> Result<String, UnknownCryptoError> {
+    let message = secrets.encrypt_broadcast(body).await?;
+    Ok(message.message)
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BroadcastEncryptedMessage {
     pub sender: String,

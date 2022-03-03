@@ -20,7 +20,7 @@ function sendToken() {
 }
 
 frame.addEventListener('load', sendToken, true);
-senderId = setInterval(sendToken, 250);
+senderId = setInterval(sendToken, 20);
 
 window.addEventListener('message', handleAck);
 

@@ -25,15 +25,16 @@ async fn main() -> tide::Result<()> {
 
     let session_middleware = middleware::session::init_session_middleware(&config).await?;
     let anti_forgery_middleware = crate::middleware::security::AntiRequestForgeryMiddleware::new();
-    let encryption_middleware = crate::middleware::security::SessionEncryptionMiddleware::new();
-    let user_middleware = middleware::user::UserExtensionMiddleware::new();
+    let keyring_middleware = crate::middleware::keyring::SessionEncryptionMiddleware::new();
+    let user_ext_middleware = middleware::user::UserExtensionMiddleware::new();
 
-    let user_authorization_middleware = middleware::user::UserAuthorizationMiddleware::new();
+    let user_authorization_middleware = middleware::authorization::UserAuthorizationMiddleware::new();
 
+    // these global middlewares run on every request... 
     app.with(session_middleware);
-    app.with(encryption_middleware);
-    app.with(user_middleware);
+    app.with(keyring_middleware);
     app.with(anti_forgery_middleware);
+    app.with(user_ext_middleware);
 
     app.at("/").get(routes::index::get);
 
@@ -50,6 +51,8 @@ async fn main() -> tide::Result<()> {
         .with(user_authorization_middleware)
         .get(routes::dummy_secret::get);
 
+    // TODO: all these assets shouldn't be served by this server....
+    // they should probably be through some kind of CDN or somethin
     app.at("/hcc/*")
         .serve_dir("../hcc-client/dist/")
         .expect("Failed to load frontend assets");

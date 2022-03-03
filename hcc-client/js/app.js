@@ -1,4 +1,7 @@
 import("../css/app.css");
+
+import("./encryption.js");
+
 try {
     import("../pkg/index.js").then((x => {
         window.recv_claims = x.recv_claims;
@@ -8,4 +11,4 @@ try {
     console.log(e);
 }
 
-import ("./htmx.js");
+import("./htmx.js");

@@ -1,5 +1,13 @@
 # Running Migrator CLI
 
+you will need to make sure you have the proper database ENV variable set
+
+`cargo install sea-orm-cli`
+
+`source .env; export DATABASE_URL=$HCC_POSTGRES_SQL_CONNECTION_URL;`
+
+`sea-orm-cli migrate`
+
 - Apply all pending migrations
     ```sh
     cargo run

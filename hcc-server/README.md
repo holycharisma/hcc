@@ -44,14 +44,14 @@ you will also need a postgres-like database running at the connection url
 - [askama](https://djc.github.io/askama/)
     - server side templating via rust compile time macros
     - jinja2 style but strong template types
+- [sea-orm](https://www.sea-ql.org/SeaORM/)
+    - active-record-like object relation mapper
 
 yet to be added:
 
 - [lettre](https://github.com/lettre/lettre)
     - smtp mailer - old fashioned E-MAIL 
-- [sea-orm](https://www.sea-ql.org/SeaORM/)
-    - active-record-like object relation mapper
-
+    
 ## server goals
 
 - host a list of email verified members

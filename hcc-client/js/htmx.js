@@ -1,83 +1,63 @@
 import "htmx.org";
 
-window.htmx = require("htmx.org");
+const htmx = (window.htmx = require("htmx.org"));
+import encryption from "./encryption";
 
-const [authKey, antiForgeryKey, encryptionKey] = ["au", "af", "ec"];
-const TOKEN_DB = {
-  [authKey]: undefined,
-  [antiForgeryKey]: undefined,
-  [encryptionKey]: undefined,
-};
-
-const ORIGIN = String(document.referrer).replace(/\/$/, "");
-
-let init_keyring = false;
-
-function recvTokenMessage(event) {
-  if (event.origin !== ORIGIN) return
-  else if (!window.recv_claims || !window.EphemeralSharedKeyring) return
-  else if (init_keyring) return;
-  
-  init_keyring = true;
-
-  let claims = recv_claims(
-    ORIGIN,
-    event.data.token,
-    event.data.pubkey
-  );
-
-  let keyring = new EphemeralSharedKeyring(claims);
-
-  TOKEN_DB[encryptionKey] = keyring;
-  TOKEN_DB[antiForgeryKey] = keyring.encrypt(event.data.token);
-
-  event.source.postMessage("ack-token", event.origin);
-  window.removeEventListener("message", recvTokenMessage);
-}
-
-window.addEventListener("message", recvTokenMessage);
+let jwt;
 
 function signRequestHeaders(evt) {
-
-  // notice: both AUTH_TOKEN and ANTI_FORGERY_TOKEN 
+  // notice: both AUTH_TOKEN and ANTI_FORGERY_TOKEN
   // are already encrypted using the client encryption key received by the JWT session handshake
 
   if (evt && evt.detail && evt.detail.headers) {
     // todo: only sign request if we are requesting a secure asset
-    const jwt = TOKEN_DB[authKey];
     if (jwt) {
       evt.detail.headers["x-auth-token"] = jwt;
     }
 
     // todo: only sign with CSRF if unsafe request method
-    const csrf = TOKEN_DB[antiForgeryKey];
+    const csrf = encryption.getAntiForgeryToken();
     if (csrf) {
       evt.detail.headers["x-anti-forgery-token"] = csrf;
     }
-  }
-}
 
-function recvAuthToken(jwt) {
-  let encryption = TOKEN_DB[encryptionKey];
-  if (encryption) {
-    if (jwt) {
-      let decrypted = encryption.decrypt(jwt);
-      TOKEN_DB[authKey] = encryption.encrypt(decrypted);
+    let keyring = encryption.getKeyring();
+
+    for (const [key, value] of Object.entries(evt.detail.parameters)) {
+      evt.detail.parameters[key] = keyring.encrypt(value);
     }
-  } else {
-    setTimeout(recvAuthToken.bind(null, jwt), 100);
+    
   }
 }
 
-function readAuthHeader(evt) {
-  let authHeader = "";
-  if (evt && evt.detail && evt.detail.xhr instanceof XMLHttpRequest) {
-    authHeader = evt.detail.xhr.getResponseHeader("x-auth-token");
-  } else {
+function decryptResponse(evt) {
+
+  let header = evt.detail.xhr.getResponseHeader("x-auth-token");
+
+  let keyring = encryption.getKeyring();
+
+  if (header) {
+    jwt = keyring.encrypt(keyring.decrypt(header));
   }
-  recvAuthToken(authHeader);
+
+  let obj = evt.detail;
+  if (obj && obj.serverResponse) {
+    let target = obj.target;
+    let serverHtml = keyring.decrypt(obj.serverResponse);
+
+    let node = document.createElement("div");
+    node.innerHTML = serverHtml;
+
+    obj["serverResponse"] = serverHtml;
+    obj["target"] = node;
+
+    htmx.process(obj.target);
+
+    target.innerHTML = "";
+    target.appendChild(obj.target);
+  }
 }
 
 document.body.addEventListener("htmx:configRequest", signRequestHeaders);
 
-document.body.addEventListener("htmx:beforeSwap", readAuthHeader);
+document.body.addEventListener("htmx:beforeSwap", decryptResponse);
