@@ -2,6 +2,7 @@
 
 var origin = '{{ origin_domain  }}';
 var token = '{{ csrf_secret_token }}';
+var pubkey = '{{ server_pub_key }}';
 
 var frame = document.getElementById("hcc-frame").contentWindow;
 var senderId = 0;
@@ -15,7 +16,7 @@ function handleAck(event) {
 }
 
 function sendToken() {
-	frame.postMessage(token, origin);
+	frame.postMessage({token: token, pubkey: pubkey}, origin);
 }
 
 frame.addEventListener('load', sendToken, true);

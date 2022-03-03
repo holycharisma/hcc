@@ -1,4 +1,4 @@
-use crate::wiring::ServerWiring;
+use crate::{wiring::ServerWiring, util::encryption::{SharedKeyring, UserEncryptedMessage}};
 use domain::session::SessionUser;
 
 #[derive(Default)]
@@ -38,13 +38,14 @@ impl tide::Middleware<ServerWiring> for UserExtensionMiddleware {
                 None
             };
 
-        let mut response = next.run(req).await;
-
         if auth_token.is_some() {
-            response.insert_header("x-auth-token", auth_token.unwrap());
-            Ok(response)
+            let secrets: &SharedKeyring = req.ext().unwrap();
+            let encrypted = secrets.encrypt_broadcast(&auth_token.unwrap()).await.unwrap();
+            let mut res = next.run(req).await;
+            res.insert_header("x-auth-token", encrypted.message);
+            Ok(res)
         } else {
-            Ok(response)
+            Ok(next.run(req).await)
         }
     }
 }
@@ -78,8 +79,16 @@ impl tide::Middleware<ServerWiring> for UserAuthorizationMiddleware {
                 let maybe_token_text = maybe_header.unwrap().into_iter().next();
                 if maybe_token_text.is_some() {
                     let jwt_util = &req.state().services.jwt_util;
+                    let secrets: &SharedKeyring = req.ext().unwrap();
 
-                    let verification = jwt_util .verify_auth_token(maybe_token_text.unwrap().as_str(), &user.email);
+                    let message = UserEncryptedMessage {
+                        sender: secrets.user.clone(),
+                        message: maybe_token_text.unwrap().as_str().to_owned()
+                    };
+
+                    let decrypted = message.decrypt(secrets).unwrap();
+
+                    let verification = jwt_util.verify_auth_token(&decrypted, &user.email);
                     if verification.is_ok() {
                         Ok(next.run(req).await)
                     } else {

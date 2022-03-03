@@ -3,6 +3,7 @@ use tide::{http::mime, Request, Response, Result};
 
 use domain::session::SessionUser;
 use crate::wiring::ServerWiring;
+use crate::util::encryption::SharedKeyring;
 
 #[derive(Debug, Deserialize)]
 struct UserLoginDto {
@@ -27,14 +28,25 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
     let maybe_user: Option<&SessionUser> = req.ext();
 
     if maybe_user.is_some() {
+        let user = maybe_user.unwrap().to_owned();
+
+        let jwt_util = &req.state().services.jwt_util.clone();
+
+        let auth_token = jwt_util.sign_auth_token(&user.email);
+
+        let secrets: &SharedKeyring = req.ext().unwrap();
+        let encrypted = secrets.encrypt_broadcast(&auth_token.unwrap()).await.unwrap();
+        
         let app_view = AppView {
-            user: maybe_user.unwrap().to_owned()
+            user: user
         };
 
         let response = Response::builder(200)
             .content_type(mime::PLAIN)
+            .header("x-auth-token", encrypted.message)
             .body_string(app_view.render().unwrap())
             .build();
+
         Ok(response)
     } else {
 
@@ -72,9 +84,12 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
             user: user
         };
 
+        let secrets: &SharedKeyring = req.ext().unwrap();
+        let encrypted = secrets.encrypt_broadcast(&auth_token.unwrap()).await.unwrap();
+        
         let response = Response::builder(200)
             .content_type(mime::PLAIN)
-            .header("x-auth-token", auth_token.unwrap())
+            .header("x-auth-token", encrypted.message)
             .body_string(app_view.render().unwrap())
             .build();
         Ok(response)

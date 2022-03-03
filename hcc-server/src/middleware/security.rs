@@ -1,6 +1,44 @@
 use tide::http::Method;
 
-use crate::wiring::ServerWiring;
+use crate::{wiring::ServerWiring, util::encryption::{SharedKeyring, EncryptedKeyring}};
+
+#[derive(Default)]
+pub struct SessionEncryptionMiddleware {
+
+}
+
+impl SessionEncryptionMiddleware {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+#[tide::utils::async_trait]
+impl tide::Middleware<ServerWiring> for SessionEncryptionMiddleware {
+    async fn handle(
+        &self,
+        mut req: tide::Request<ServerWiring>,
+        next: tide::Next<'_, ServerWiring>,
+    ) -> tide::Result {
+        let s = req.session();
+        let secrets = match s.get::<EncryptedKeyring>("keyring") {
+            Some(secrets) => {
+                secrets.decrypt_global(&req.state().config).expect("decrypted keyring")
+            },
+            None => {
+                let secrets = SharedKeyring::new().await.unwrap();
+                let config = req.state().config.clone();
+                let m = req.session_mut();
+                let e = EncryptedKeyring::encrypt_global(&secrets, &config).expect("encrypted keyring");
+                m.insert("keyring", e).expect("serializable");
+                secrets
+            }
+        };
+        req.set_ext(secrets);
+        Ok(next.run(req).await)
+    }
+}
+
 
 #[derive(Default)]
 pub struct AntiRequestForgeryMiddleware {}
@@ -36,9 +74,8 @@ impl tide::Middleware<ServerWiring> for AntiRequestForgeryMiddleware {
                 if maybe_token_text.is_some() {
                     let jwt_util = &req.state().services.jwt_util;
                     let session = req.session();
-
-                    let verification = jwt_util
-                        .verify_csrf_token(maybe_token_text.unwrap().as_str(), session.id());
+                    let secrets: &SharedKeyring = req.ext().unwrap();
+                    let verification = jwt_util.verify_csrf_token(maybe_token_text.unwrap().as_str(), session.id(), secrets);
                     if verification.is_ok() {
                         Ok(next.run(req).await)
                     } else {

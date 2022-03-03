@@ -1,6 +1,7 @@
 
 use tide::{http::mime, Request, Response, Result};
 use crate::wiring::ServerWiring;
+use crate::util::encryption::SharedKeyring;
 
 // for now - maybe forever:
 // just serve the relative dist folder index as an iframe from the rs-wasm sibling project
@@ -12,7 +13,8 @@ use askama::Template; // bring trait in scope
 #[template(path = "js/hcc_frame.js.j2")] // using the template in this path, relative
 struct TokenView {
     csrf_secret_token: String,
-    origin_domain: String
+    origin_domain: String,
+    server_pub_key: String
 }
 
 pub async fn get(req: Request<ServerWiring>) -> Result {
@@ -23,13 +25,18 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
 
     let session_id = req.session().id();
 
-    let csrf_token = jwt_util.sign_csrf_token(session_id).unwrap();
+    let secrets = req.ext::<SharedKeyring>().expect("do not have session secrets...");
+
+    let config = &req.state().config;
+
+    let csrf_token = jwt_util.sign_csrf_token(session_id, &secrets).unwrap();
     
-    let origin_domain = String::from(&req.state().config.domain);
+    let origin_domain = String::from(&config.domain);
 
     let view = TokenView {
         csrf_secret_token: csrf_token,
-        origin_domain: origin_domain
+        origin_domain: origin_domain,
+        server_pub_key: jwt_util.encode_pubkey()
     };
 
     let response_body = view.render().unwrap();

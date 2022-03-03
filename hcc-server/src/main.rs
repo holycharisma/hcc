@@ -25,11 +25,13 @@ async fn main() -> tide::Result<()> {
 
     let session_middleware = middleware::session::init_session_middleware(&config).await?;
     let anti_forgery_middleware = crate::middleware::security::AntiRequestForgeryMiddleware::new();
+    let encryption_middleware = crate::middleware::security::SessionEncryptionMiddleware::new();
     let user_middleware = middleware::user::UserExtensionMiddleware::new();
 
     let user_authorization_middleware = middleware::user::UserAuthorizationMiddleware::new();
 
     app.with(session_middleware);
+    app.with(encryption_middleware);
     app.with(user_middleware);
     app.with(anti_forgery_middleware);
 

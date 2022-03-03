@@ -1,4 +1,4 @@
-use crate::util::password::password_bytes;
+use crate::util::password::PasswordUtil;
 use crate::wiring::ServerWiring;
 use domain::server_config::ServerConfig;
 
@@ -13,7 +13,7 @@ impl UserDao {
             created_at: Set(chrono::offset::Utc::now()),
             email: Set(String::from(&config.super_user_email)),
             username: Set(String::from(&config.super_user_email)),
-            password: Set(password_bytes(&config.super_user_password)),
+            password: Set(PasswordUtil::into_password_hash(&config.super_user_password)),
             active: Set(true),
             ..Default::default()
         };
@@ -22,8 +22,21 @@ impl UserDao {
             .exec(&wiring.db)
             .await;
 
+
+            /* 
+        println!(
+            "password check! {}",
+            PasswordUtil::verify_hashed_bytes(
+                &config.super_user_password, 
+                &PasswordUtil::into_password_hash(&config.super_user_password)
+            )
+        );
+
+        */
+        
         if operation.is_ok() {
-            println!("INSERTED ONE: {:?}", operation.ok());
+            let item = operation.ok();
+            println!("INSERTED ONE: {:?}", item);
         } else {
             println!(
                 "Failed to insert super user... maybe it already exists?? {:?}",
