@@ -29,11 +29,12 @@ wasm-logger = "0.2.0"
 # gloo-console = "0.2.1"
 
 # some cryptography stuff...
+base64 = "0.13.0"
 orion = "0.17.1"
 serde = { version = "1", features = ["derive"] }
 serde-wasm-bindgen = { version = "0.4.2" }
 
-hex = "0.4.3"
+lazy_static = "1"
 getrandom = { version = "0.2", features = ["js"] }
 
 # The `web-sys` crate allows you to interact with the various browser APIs,

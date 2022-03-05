@@ -16,12 +16,12 @@ function recvTokenMessage(event) {
 
   init_keyring = true;
 
-  let claims = recv_claims(ORIGIN, event.data.token, event.data.pubkey);
+  let claims = recv_claims(ORIGIN, event.data.token);
 
   let keyring = new EphemeralSharedKeyring(claims);
 
   TOKEN_DB[encryptionKey] = keyring;
-  TOKEN_DB[antiForgeryKey] = keyring.encrypt(event.data.token);
+  TOKEN_DB[antiForgeryKey] = keyring.encrypt_header(event.data.token);
 
   event.source.postMessage("ack-token", event.origin);
   window.removeEventListener("message", recvTokenMessage);

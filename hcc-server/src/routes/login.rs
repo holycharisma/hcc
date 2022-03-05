@@ -1,7 +1,7 @@
 use tide::prelude::*;
 use tide::{http::mime, Request, Response, Result};
 
-use crate::util::encryption::{self, UserEncryptedMessage};
+use crate::util::encryption::{self, UserEncryptedEmojiMessage};
 use crate::wiring::ServerWiring;
 use domain::session::SessionUser;
 
@@ -29,25 +29,16 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
     if maybe_user.is_some() {
         let user = maybe_user.unwrap().to_owned();
 
-        let jwt_util = &req.state().services.jwt_util.clone();
-
-        let auth_token = jwt_util.sign_auth_token(&user.email);
-
         let secrets: &encryption::SharedKeyring = req.ext().unwrap();
-        let encrypted = secrets
-            .encrypt_broadcast(&auth_token.unwrap())
-            .await
-            .unwrap();
-
+        
         let app_view = AppView { user: user };
 
-        let encrypted_body = encryption::encrypt_str(&app_view.render().unwrap(), secrets)
+        let encrypted_body = encryption::encrypt_str_emoji(&app_view.render().unwrap(), secrets)
             .await
             .unwrap();
 
         let response = Response::builder(200)
             .content_type(mime::PLAIN)
-            .header("x-auth-token", encrypted.message)
             .body_string(encrypted_body)
             .build();
 
@@ -56,7 +47,7 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
         let login_get_view = LoginGetView {};
         let secrets: &encryption::SharedKeyring = req.ext().unwrap();
 
-        let encrypted_body = encryption::encrypt_str(&login_get_view.render().unwrap(), secrets)
+        let encrypted_body = encryption::encrypt_str_emoji(&login_get_view.render().unwrap(), secrets)
             .await
             .unwrap();
 
@@ -76,12 +67,12 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
 
         let sender = &secrets.user;
 
-        let encrypted_email = UserEncryptedMessage {
+        let encrypted_email = UserEncryptedEmojiMessage {
             sender: sender.to_owned(),
             message: encrypted_form.email,
         };
 
-        let encrypted_password = UserEncryptedMessage {
+        let encrypted_password = UserEncryptedEmojiMessage {
             sender: sender.to_owned(),
             message: encrypted_form.password,
         };
@@ -111,18 +102,18 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
 
         let secrets: &encryption::SharedKeyring = req.ext().unwrap();
 
-        let encrypted = secrets
-            .encrypt_broadcast(&auth_token.unwrap())
+        let encrypted_auth_token = secrets
+            .encrypt_broadcast_base64(&auth_token.unwrap())
             .await
             .unwrap();
 
-        let encrypted_body = encryption::encrypt_str(&app_view.render().unwrap(), secrets)
+        let encrypted_body = encryption::encrypt_str_emoji(&app_view.render().unwrap(), secrets)
             .await
             .unwrap();
 
         let response = Response::builder(200)
             .content_type(mime::PLAIN)
-            .header("x-auth-token", encrypted.message)
+            .header("x-auth-token", encrypted_auth_token.message)
             .body_string(encrypted_body)
             .build();
         Ok(response)

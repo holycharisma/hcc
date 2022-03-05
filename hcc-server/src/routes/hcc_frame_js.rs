@@ -13,8 +13,7 @@ use askama::Template; // bring trait in scope
 #[template(path = "js/hcc_frame.js.j2")] // using the template in this path, relative
 struct TokenView {
     csrf_secret_token: String,
-    origin_domain: String,
-    server_pub_key: String
+    origin_domain: String
 }
 
 pub async fn get(req: Request<ServerWiring>) -> Result {
@@ -35,8 +34,7 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
 
     let view = TokenView {
         csrf_secret_token: csrf_token,
-        origin_domain: origin_domain,
-        server_pub_key: jwt_util.encode_pubkey()
+        origin_domain: origin_domain
     };
 
     let response_body = view.render().unwrap();

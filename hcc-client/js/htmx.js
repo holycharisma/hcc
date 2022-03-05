@@ -17,6 +17,7 @@ function signRequestHeaders(evt) {
 
     // todo: only sign with CSRF if unsafe request method
     const csrf = encryption.getAntiForgeryToken();
+
     if (csrf) {
       evt.detail.headers["x-anti-forgery-token"] = csrf;
     }
@@ -37,7 +38,7 @@ function decryptResponse(evt) {
   let keyring = encryption.getKeyring();
 
   if (header) {
-    jwt = keyring.encrypt(keyring.decrypt(header));
+    jwt = keyring.encrypt_header(keyring.decrypt_header(header));
   }
 
   let obj = evt.detail;

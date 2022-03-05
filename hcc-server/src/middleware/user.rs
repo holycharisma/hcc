@@ -41,7 +41,7 @@ impl tide::Middleware<ServerWiring> for UserExtensionMiddleware {
 
         if auth_token.is_some() {
             let secrets: &SharedKeyring = req.ext().unwrap();
-            let encrypted = secrets.encrypt_broadcast(&auth_token.unwrap()).await.unwrap();
+            let encrypted = secrets.encrypt_broadcast_base64(&auth_token.unwrap()).await.unwrap();
             let mut res = next.run(req).await;
             res.insert_header("x-auth-token", encrypted.message);
             Ok(res)

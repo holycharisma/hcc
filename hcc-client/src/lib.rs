@@ -1,8 +1,12 @@
 #![recursion_limit = "512"]
 
+mod emoji;
 mod encryption;
 mod app;
 mod htmx;
+
+#[macro_use]
+extern crate lazy_static;
 
 use wasm_bindgen::prelude::*;
 

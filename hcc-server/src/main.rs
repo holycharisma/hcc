@@ -7,6 +7,9 @@ mod middleware;
 
 use wiring::ServerWiring;
 
+#[macro_use]
+extern crate lazy_static;
+
 #[async_std::main]
 async fn main() -> tide::Result<()> {
     tide::log::start();

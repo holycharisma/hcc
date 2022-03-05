@@ -1,5 +1,5 @@
 use crate::wiring::ServerWiring;
-use crate::util::encryption::{SharedKeyring, UserEncryptedMessage};
+use crate::util::encryption::{SharedKeyring, UserEncryptedBase64Message};
 use domain::session::SessionUser;
 
 #[derive(Default)]
@@ -32,8 +32,7 @@ impl tide::Middleware<ServerWiring> for UserAuthorizationMiddleware {
                     let jwt_util = &req.state().services.jwt_util;
                     let secrets: &SharedKeyring = req.ext().unwrap();
 
-                    let message = UserEncryptedMessage {
-                        sender: secrets.user.clone(),
+                    let message = UserEncryptedBase64Message {
                         message: maybe_token_text.unwrap().as_str().to_owned()
                     };
 

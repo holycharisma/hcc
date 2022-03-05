@@ -1,7 +1,7 @@
 
 
 use tide::prelude::*;
-use super::encryption::{EncryptedKeyring, SharedKeyring, UserEncryptedMessage};
+use super::{encryption::{EncryptedKeyring, SharedKeyring, UserEncryptedEmojiMessage, UserEncryptedBase64Message}, emoji};
 
 use jsonwebtokens::{encode, Algorithm, AlgorithmID, Verifier};
 
@@ -30,35 +30,6 @@ pub struct JsonWebTokenUtil {
     pub secrets: JsonWebTokenSecrets,
     pub issuer: String,
     pub expiry_duration_millis: i64,
-}
-
-fn blake_hash_to_secret(bytes: Vec<u8>) -> Vec<u8> {
-
-    // reduce the 128 bytes of the blake hash into 32 bytes for our initial handshake key...
-    // do not store this anywhere, just rely on this code to run
-    // "middle-out" key extraction
-
-    assert_eq!(128, bytes.len());
-
-    let bytes_head = bytes.clone().into_iter();
-    let bytes_head_b = bytes_head.clone().skip(1);
-
-    let bytes_tail = bytes.clone().into_iter().rev();
-    let bytes_tail_b = bytes_tail.clone().skip(1);
-
-    let heads = bytes_head.step_by(2).zip(
-        bytes_head_b.step_by(2).rev()
-    );
-
-    let tails = bytes_tail.step_by(2).zip(
-        bytes_tail_b.step_by(2).rev()
-    );
-
-    let heads_items = heads.take(8).flat_map(|x| vec![x.0, x.1]);
-
-    let tails_items = tails.take(8).flat_map(|x| vec![x.0, x.1]);
-
-    heads_items.rev().zip(tails_items).flat_map(|x| vec![x.0, x.1]).collect()
 }
 
 impl JsonWebTokenUtil {
@@ -90,12 +61,12 @@ impl JsonWebTokenUtil {
     }
 
     pub fn encode_pubkey( self: &JsonWebTokenUtil) -> String {
-        hex::encode(&self.secrets.pub_key_pem_data)
+        emoji::encode(&self.secrets.pub_key_pem_data)
     }
 
     pub fn verify_csrf_token(
         self: &JsonWebTokenUtil,
-        token_str: &str,
+        csrf_header_string: &str,
         session_id: &str,
         secrets: &SharedKeyring
     ) -> Result<serde_json::value::Value, jsonwebtokens::error::Error> {
@@ -105,11 +76,10 @@ impl JsonWebTokenUtil {
         let alg = Algorithm::new_rsa_pem_verifier(AlgorithmID::RS256, pem_data)?;
 
         let sid = Hasher::Blake2b512.digest(session_id.as_bytes()).expect("blake digest");
-        let sid_hex = hex::encode(sid.as_ref());
+        let sid_hex = emoji::encode(sid.as_ref());
 
-        let message = UserEncryptedMessage {
-            sender: secrets.user.clone(),
-            message: token_str.to_owned()
+        let message = UserEncryptedBase64Message {
+            message:  csrf_header_string.to_owned()
         };
 
         let decrypted = message.decrypt(secrets).expect("can decrypt csrf");
@@ -134,9 +104,9 @@ impl JsonWebTokenUtil {
         let pem_data = &self.secrets.key_pem_data[..];
 
         let sid = Hasher::Blake2b512.digest(session_id.as_bytes()).expect("blake digest");
-        let sid_hex = hex::encode(sid.as_ref());
+        let sid_hex = emoji::encode(sid.as_ref());
 
-        let keyr: EncryptedKeyring = EncryptedKeyring::encrypt_with_secret(keyring, &blake_hash_to_secret(sid_hex.as_bytes().to_owned())).expect("encrypted key ring");
+        let keyr: EncryptedKeyring = EncryptedKeyring::encrypt_with_secret(keyring, &emoji::EmojiEncodedBytes::blake_hash_to_secret(sid_hex.as_bytes().to_owned())).expect("encrypted key ring");
 
         let alg = Algorithm::new_rsa_pem_signer(AlgorithmID::RS256, pem_data)?;
         let header = json!({ "alg": alg.name() });
