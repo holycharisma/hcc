@@ -1,7 +1,7 @@
-import "htmx.org";
-
-const htmx = (window.htmx = require("htmx.org"));
 import encryption from "./encryption";
+
+import "htmx.org";
+const htmx = (window.htmx = require("htmx.org"));
 
 let jwt;
 
@@ -27,12 +27,10 @@ function signRequestHeaders(evt) {
     for (const [key, value] of Object.entries(evt.detail.parameters)) {
       evt.detail.parameters[key] = keyring.encrypt(value);
     }
-    
   }
 }
 
 function decryptResponse(evt) {
-
   let header = evt.detail.xhr.getResponseHeader("x-auth-token");
 
   let keyring = encryption.getKeyring();

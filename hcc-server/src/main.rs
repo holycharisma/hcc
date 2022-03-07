@@ -1,9 +1,8 @@
-
+mod dao;
+mod middleware;
 mod routes;
 mod util;
-mod dao;
 mod wiring;
-mod middleware;
 
 use wiring::ServerWiring;
 
@@ -22,7 +21,9 @@ async fn main() -> tide::Result<()> {
     // are the jwt signing keys valid?
     let server_wiring = ServerWiring::new(&config).await?;
 
-    dao::user::UserDao::insert_super_user(&config, &server_wiring).await.unwrap();
+    dao::user::UserDao::insert_super_user(&config, &server_wiring)
+        .await
+        .unwrap();
 
     let mut app = tide::with_state(server_wiring);
 
@@ -31,9 +32,10 @@ async fn main() -> tide::Result<()> {
     let keyring_middleware = crate::middleware::keyring::SessionEncryptionMiddleware::new();
     let user_ext_middleware = middleware::user::UserExtensionMiddleware::new();
 
-    let user_authorization_middleware = middleware::authorization::UserAuthorizationMiddleware::new();
+    let user_authorization_middleware =
+        middleware::authorization::UserAuthorizationMiddleware::new();
 
-    // these global middlewares run on every request... 
+    // these global middlewares run on every request...
     app.with(session_middleware);
     app.with(keyring_middleware);
     app.with(anti_forgery_middleware);
@@ -44,11 +46,15 @@ async fn main() -> tide::Result<()> {
     // https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
     app.at("/hcc_frame.js").get(routes::hcc_frame_js::get);
 
+    app.at("/handshake").get(routes::handshake::get);
+
     app.at("/login")
         .get(routes::login::get)
         .post(routes::login::post);
 
-    app.at("/logout").post(routes::logout::post);
+    app.at("/app").get(routes::app::get);
+
+    app.at("/disconnect").post(routes::disconnect::post);
 
     app.at("/api/secret")
         .with(user_authorization_middleware)
@@ -65,6 +71,6 @@ async fn main() -> tide::Result<()> {
         .expect("No favicon found");
 
     app.listen(&config.bind_url).await?;
-    
+
     Ok(())
 }

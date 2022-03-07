@@ -1,7 +1,6 @@
 use crate::htmx;
 
 use yew::prelude::*;
-
 pub struct App {
     node_ref: NodeRef,
 }
@@ -23,10 +22,7 @@ impl Component for App {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-        <div class="app-container max-w-screen-2xl px-4 md:px-8 mx-auto" ref={self.node_ref.clone()}>
-          <div class="login-container" hx-get="/login" hx-trigger="load">
-          </div>
-        </div>
+        <div id="app-container" ref={self.node_ref.clone()} hx-get="/handshake" hx-trigger="load" />
         }
     }
 }

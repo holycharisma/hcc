@@ -9,6 +9,6 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
     session.destroy();
 
     Ok(Response::builder(200)
-        .header("HX-Redirect", "/hcc/logout.html")
+        .header("HX-Redirect", "/hcc/disconnect.html")
         .build())
 }
