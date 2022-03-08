@@ -22,7 +22,27 @@ impl Component for App {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-        <div id="app-container" ref={self.node_ref.clone()} hx-get="/handshake" hx-trigger="load" />
+            <div id="app"
+                class="h-screen flex flex-col pl-16 pt-10 selection:bg-violet-600 selection:text-white" ref={ self.node_ref.clone() }>
+                <div id="header" class="flex mb-8 ">
+                  <h1 class="bg-white p-1 text-4xl font-extralight tracking-widest">{ "homepage" }</h1>
+                </div>
+                <div id="body" class="flex flex-row flex-grow">
+                  <div id="sidebar" class="flex mr-16 text-xl">
+                    <ul>
+                      <li class="link">{ "about" }</li>
+                      <li class="link">{ "media" }</li>
+                      <li class="link" hx-get="/handshake" hx-trigger="click" hx-target="#content">{ "hcc" }</li>
+                    </ul>
+                  </div>
+                  <div id="content" class="flex flex-grow overflow-y-auto">
+                    <div>
+                      <h1>{ "👋" }</h1>
+                      <p>{" good to see you..." }</p>
+                    </div>
+                  </div>
+                </div>
+          </div>
         }
     }
 }
