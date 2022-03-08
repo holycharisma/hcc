@@ -1,8 +1,8 @@
 #![recursion_limit = "512"]
 
+mod app;
 mod emoji;
 mod encryption;
-mod app;
 mod htmx;
 
 #[macro_use]
@@ -17,7 +17,7 @@ pub use encryption::SharedKeyring;
 #[wasm_bindgen(start)]
 pub fn main_js() -> Result<(), JsValue> {
     wasm_logger::init(wasm_logger::Config::default());
-    yew::start_app::<app::App>();
+    yew::start_app::<app::home::App>();
 
     Ok(())
 }
