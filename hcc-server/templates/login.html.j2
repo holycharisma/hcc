@@ -1,4 +1,4 @@
-<div class="bg-white p-4 rounded-sm">
+<div class="bg-white bg-opacity-75 p-4 rounded-sm">
     <form class="max-w-md" hx-post="/login" hx-target="#content">
       <div class="grid grid-cols-1 gap-6">
         <label class="block">
@@ -6,7 +6,7 @@
           <input
             type="email"
             name="email"
-            class="mt-1 block w-full form-input"
+            class="mt-1 block w-full form-input focus:border-violet-500"
             placeholder="holycharisma@example.com"
           />
         </label>
@@ -15,13 +15,13 @@
           <input
             name="password"
             type="password"
-            class="mt-1 block w-full form-input"
+            class="mt-1 block w-full form-input focus:border-violet-500"
             placeholder=""
           />
         </label>
         <label class="block">
           <button
-            class="inline-block bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus-visible:ring ring-violet-300 text-white text-sm md:text-base font-semibold text-center rounded-lg outline-none transition duration-100 px-8 py-3">
+            class="btn-violet inline-block text-sm md:text-base font-semibold text-center rounded-lg outline-none transition duration-100 px-8 py-3">
             Login
           </button>
         </label>

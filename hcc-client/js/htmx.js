@@ -45,6 +45,7 @@ function decryptResponse(evt) {
     let serverHtml = keyring.decrypt(obj.serverResponse);
 
     let node = document.createElement("div");
+    node.className = "hcc-htmx";
     node.innerHTML = serverHtml;
 
     obj["serverResponse"] = serverHtml;

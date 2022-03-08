@@ -24,6 +24,8 @@ lto = true
 # to interact with JavaScript.
 wasm-bindgen = "0.2.79"
 yew = "0.19.3"
+bounce = "0.2"
+yew-hooks = "0.1"
 wasm-logger = "0.2.0"
 # gloo = "0.6.0"
 # gloo-console = "0.2.1"

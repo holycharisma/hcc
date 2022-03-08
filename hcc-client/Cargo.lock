@@ -3,6 +3,12 @@
 version = 3
 
 [[package]]
+name = "anymap2"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d301b3b94cb4b2f23d7917810addbbaff90738e0ca2be692bd027e70d7e0330c"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -19,6 +25,33 @@ name = "boolinator"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cfa8873f51c92e232f9bac4065cddef41b714152812bfc5f7672ba16d6ef8cd9"
+
+[[package]]
+name = "bounce"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e4a9ccd863f8d2e483a1cf1ba6b1037b6cd6dff542a994c744124dde8b1415f"
+dependencies = [
+ "anymap2",
+ "bounce-macros",
+ "futures",
+ "once_cell",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "yew",
+]
+
+[[package]]
+name = "bounce-macros"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60cec25d9be01287cb4c12b0892d97f3d6027d4522d3e319ece88b8e17095064"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "bumpalo"
@@ -279,6 +312,7 @@ name = "hcc-client"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "bounce",
  "futures",
  "getrandom",
  "js-sys",
@@ -292,6 +326,7 @@ dependencies = [
  "wasm-logger",
  "web-sys",
  "yew",
+ "yew-hooks",
 ]
 
 [[package]]
@@ -345,6 +380,12 @@ name = "memchr"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "308cc39be01b73d0d18f82a0e7b2a3df85245f84af96fdddc5d202d27e47b86a"
+
+[[package]]
+name = "once_cell"
+version = "1.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87f3e037eac156d1775da914196f0f37741a274155e34a0b7e427c35d2a2ecb9"
 
 [[package]]
 name = "orion"
@@ -665,6 +706,22 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "yew-macro",
+]
+
+[[package]]
+name = "yew-hooks"
+version = "0.1.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca160f2ffe0c131d7c0117025d51c50ee54c87050b350ae0ccf92df1f340493e"
+dependencies = [
+ "gloo",
+ "js-sys",
+ "log",
+ "serde",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+ "yew",
 ]
 
 [[package]]
