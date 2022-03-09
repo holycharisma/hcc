@@ -22,13 +22,13 @@ impl tide::Middleware<ServerWiring> for SessionEncryptionMiddleware {
         let s = req.session();
         let secrets = match s.get::<EncryptedKeyring>("keyring") {
             Some(secrets) => {
-                secrets.decrypt_global(&req.state().config).expect("decrypted keyring")
+                secrets.open(&req.state().config).expect("decrypted keyring")
             },
             None => {
                 let secrets = SharedKeyring::new().await.unwrap();
                 let config = req.state().config.clone();
                 let m = req.session_mut();
-                let e = EncryptedKeyring::encrypt_global(&secrets, &config).expect("encrypted keyring");
+                let e = EncryptedKeyring::seal(&secrets, &config).expect("encrypted keyring");
                 m.insert("keyring", e).expect("serializable");
                 secrets
             }

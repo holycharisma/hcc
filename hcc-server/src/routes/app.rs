@@ -23,9 +23,10 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
         
         let app_view = AppView { user: user };
 
-        let encrypted_body = encryption::encrypt_str_emoji(&app_view.render().unwrap(), secrets)
+        let encrypted_body =secrets.encrypt_broadcast_emoji(&app_view.render().unwrap())
             .await
-            .unwrap();
+            .unwrap()
+            .message;
 
         let response = Response::builder(200)
             .content_type(mime::PLAIN)

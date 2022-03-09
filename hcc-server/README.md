@@ -12,20 +12,10 @@ build binaries managed by cargo + rustup
 - cargo [check|run]
 ```
 
-you will need a `.env` file that looks something like this:
-
+you will need a `.env` file that looks something like:
 
 ```
-export HCC_ORIGIN_DOMAIN="http://127.0.0.1:7777"
-export HCC_SESSION_COOKIE_NAME=sid
-export HCC_SESSION_TTL_HOURS=8
-export HCC_SESSION_SECRET=1234567890abcdef1234567890abcdef
-export HCC_JWT_RSA_PRIVATE_KEY_PATH=/.ssh/my-special-keys/my-RS256-identity.key
-export HCC_JWT_RSA_PUBLIC_KEY_PATH=/.ssh/my-special-keys/my-RS256-identity.key.pub
-export HCC_POSTGRES_SQL_CONNECTION_URL="postgresql://root@localhost:26257/defaultdb?sslmode=disable"
-export HCC_BIND_URL=127.0.0.1:7777
-export HCC_SUPER_USER_EMAIL=hello@example.com
-export HCC_SUPER_USER_PASSWORD=hunter23@plaintext.lol
+tbd: look ServerWiring::init_server_wiring 
 ```
 
 you will also need a postgres-like database running at the connection url

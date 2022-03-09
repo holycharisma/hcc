@@ -7,7 +7,7 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
     let secrets = req.ext::<encryption::SharedKeyring>().unwrap();
 
     let body = String::from("<div>YOU ARE AUTHORIZED!</div>");
-    let encrypted_body = encryption::encrypt_str_emoji(&body, secrets).await.unwrap();
+    let encrypted_body = secrets.encrypt_broadcast_emoji(&body).await.unwrap().message;
 
     Ok(tide::Response::builder(200)
         .content_type(mime::PLAIN)

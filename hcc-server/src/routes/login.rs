@@ -1,7 +1,9 @@
 use tide::prelude::*;
-use tide::{http::mime, Request, Response, Result, Redirect};
+use tide::{http::mime, Redirect, Request, Response, Result};
 
-use crate::util::encryption::{self, UserEncryptedEmojiMessage};
+use crate::util::emoji;
+use crate::util::encryption;
+use crate::util::password::PasswordUtil;
 use crate::wiring::ServerWiring;
 use domain::session::SessionUser;
 
@@ -20,9 +22,11 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
         let login_get_view = LoginGetView {};
         let secrets: &encryption::SharedKeyring = req.ext().unwrap();
 
-        let encrypted_body = encryption::encrypt_str_emoji(&login_get_view.render().unwrap(), secrets)
+        let encrypted_body = secrets
+            .encrypt_broadcast_emoji(&login_get_view.render().unwrap())
             .await
-            .unwrap();
+            .unwrap()
+            .message;
 
         let response = Response::builder(200)
             .content_type(mime::HTML)
@@ -31,7 +35,6 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
         Ok(response)
     }
 }
-
 
 #[derive(Debug, Deserialize)]
 struct UserLoginDto {
@@ -47,12 +50,12 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
 
         let sender = &secrets.user;
 
-        let encrypted_email = UserEncryptedEmojiMessage {
+        let encrypted_email = encryption::UserEncryptedEmojiMessage {
             sender: sender.to_owned(),
             message: encrypted_form.email,
         };
 
-        let encrypted_password = UserEncryptedEmojiMessage {
+        let encrypted_password = encryption::UserEncryptedEmojiMessage {
             sender: sender.to_owned(),
             message: encrypted_form.password,
         };
@@ -64,9 +67,33 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
     };
 
     let super_user_email = &req.state().config.super_user_email;
-    let super_user_password = &req.state().config.super_user_password;
+    let super_user_password = &req.state().config.super_user_pwhash_emoji;
 
-    if &form.email == super_user_email && &form.password == super_user_password {
+    let top_secret_email = {
+        encryption::seal_with_view_key_emoji(
+            &req.state().config.encryption_key_emoji,
+            &req.state().config.encryption_view_key_emoji,
+            &form.email.as_bytes(),
+        )
+        .unwrap()
+    };
+
+    let user_pwhash = emoji::decode(super_user_password);
+
+    let expected_super_user_email = {
+        encryption::seal_with_view_key_emoji(
+            &req.state().config.encryption_key_emoji,
+            &req.state().config.encryption_view_key_emoji,
+            super_user_email.as_bytes(),
+        )
+        .unwrap()
+    };
+
+    let email_is_valid = top_secret_email == expected_super_user_email;
+
+    let pass_is_valid =  PasswordUtil::verify_hashed_bytes(&form.password, &user_pwhash);
+
+    if email_is_valid && pass_is_valid {
         let session = req.session_mut();
 
         let user = SessionUser {

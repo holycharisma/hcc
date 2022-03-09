@@ -34,20 +34,22 @@ impl ServerWiring {
                 .expect("Invalid configuration: HCC_SESSION_TTL_HOURS required")
                 .parse()
                 .expect("Invalid configuration: HCC_SESSION_TTL_HOURS must be a number"),
-            session_secret: env::var("HCC_SESSION_SECRET")
-                .expect("Invalid configuration: HCC_SESSION_SECRET required"),
-            jwt_rsa_private_key_path: env::var("HCC_JWT_RSA_PRIVATE_KEY_PATH")
-                .expect("Invalid configuration: HCC_JWT_RSA_PRIVATE_KEY_PATH required"),
-            jwt_rsa_public_key_path: env::var("HCC_JWT_RSA_PUBLIC_KEY_PATH")
-                .expect("Invalid configuration: HCC_JWT_RSA_PUBLIC_KEY_PATH required"),
+            encryption_key_emoji: env::var("HCC_ENCRYPTION_KEY_EMOJI")
+                .expect("Invalid configuration: HCC_ENCRYPTION_KEY_EMOJI required"),
+            encryption_view_key_emoji: env::var("HCC_ENCRYPTION_VIEW_KEY_EMOJI")
+            .expect("Invalid configuration: HCC_ENCRYPTION_VIEW_KEY_EMOJI required"),
+            rsa_private_key_path: env::var("HCC_RSA_PRIVATE_KEY_PATH")
+                .expect("Invalid configuration: HCC_RSA_PRIVATE_KEY_PATH required"),
+            rsa_public_key_path: env::var("HCC_RSA_PUBLIC_KEY_PATH")
+                .expect("Invalid configuration: HCC_RSA_PUBLIC_KEY_PATH required"),
             postgres_sql_connection_url: env::var("HCC_POSTGRES_SQL_CONNECTION_URL")
                 .expect("Invalid configuration: HCC_POSTGRES_SQL_CONNECTION_URL required"),
             bind_url: env::var("HCC_BIND_URL")
                 .expect("Invalid configuration: HCC_BIND_URL required"),
             super_user_email: env::var("HCC_SUPER_USER_EMAIL")
                 .expect("Invalid configuration: HCC_SUPER_USER_EMAIL required"),
-            super_user_password: env::var("HCC_SUPER_USER_PASSWORD")
-                .expect("Invalid configuration: HCC_SUPER_USER_PASSWORD required"),
+            super_user_pwhash_emoji: env::var("HCC_SUPER_USER_PWHASH_EMOJI")
+                .expect("Invalid configuration: HCC_SUPER_USER_PWHASH_EMOJI required"),
         }
     }
 
@@ -77,8 +79,8 @@ pub struct ServiceWiring {
 impl ServiceWiring {
     pub fn jwt_util(config: &ServerConfig) -> JsonWebTokenUtil {
         let rsa_secrets = JsonWebTokenSecrets::read_keys(
-            &config.jwt_rsa_private_key_path,
-            &config.jwt_rsa_public_key_path,
+            &config.rsa_private_key_path,
+            &config.rsa_public_key_path,
         );
 
         JsonWebTokenUtil {

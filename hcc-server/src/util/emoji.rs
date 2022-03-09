@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-
 // encoding scheme lovingly borrowed from the tari project
 // encode u8 bytes into a 256 char map of emojis
 // each emoji is 4 bytes... so this encoding scheme makes the xfer size 4X...
@@ -41,7 +40,7 @@ lazy_static! {
 
 mod luhn {
 
-    // source included from 
+    // source included from
     // from https://github.com/tari-project/tari/blob/95ac87db600fff7d6bc5d48459f144e6fce4ea3f/base_layer/common_types/src/luhn.rs
 
     pub fn valid(arr: &[usize], dict_len: usize) -> bool {
@@ -58,7 +57,7 @@ mod luhn {
             .rev()
             .fold((0usize, 2usize), |(sum, factor), digit| {
                 let mut addend = factor * *digit;
-                let factor = factor ^ 3; 
+                let factor = factor ^ 3;
                 addend = (addend / dict_len) + addend % dict_len;
                 (sum + addend, factor)
             });
@@ -70,44 +69,40 @@ mod luhn {
 pub struct EmojiEncodedBytes(String);
 
 impl EmojiEncodedBytes {
-
     pub fn emoji_checksum(emoji: &str) -> char {
+        let indices = emoji.chars().map(|c| REVERSE_EMOJI.get(&c).unwrap());
 
-        let indices = emoji.chars().map(|c| REVERSE_EMOJI.get(&c).unwrap() );
-        
         let idx_vec: Vec<usize> = indices.cloned().collect();
 
-        let idx = luhn::checksum( &idx_vec, 256);
-        
-        EMOJI[idx]
+        let idx = luhn::checksum(&idx_vec, 256);
 
+        EMOJI[idx]
     }
 
     pub fn blake_hash_to_secret(bytes: Vec<u8>) -> Vec<u8> {
-    
         // reduce the 128 bytes of the blake hash into 32 bytes for our initial handshake key...
         // do not store this anywhere, just rely on this code to run
         // "middle-out" key extraction
-    
+
         let as_utf8 = String::from_utf8(bytes.clone()).unwrap();
         let cool = as_utf8.chars();
-    
+
         let mut xs: Vec<char> = cool.take(32).step_by(2).collect();
         let mut ys: Vec<char> = as_utf8.chars().skip(33).step_by(2).collect();
-    
+
         ys.append(&mut xs);
-    
+
         let emoji_str: String = ys.into_iter().collect();
-    
+
         let checksum = EmojiEncodedBytes::emoji_checksum(&emoji_str);
-    
+
         let signed = format!("{}{}", emoji_str, checksum);
-    
+
         let e = EmojiEncodedBytes(signed);
-    
+
         e.as_bytes()
     }
-    
+
     pub fn from_bytes(bytes: &[u8]) -> Self {
         let mut vec = Vec::<usize>::new();
         bytes.iter().for_each(|b| vec.push((*b) as usize));
@@ -144,12 +139,14 @@ pub fn decode(emojis: &str) -> Vec<u8> {
 
 #[cfg(test)]
 mod test {
+
+    use crate::util::encryption::seal_with_view_key;
+
     use super::*;
-    use orion::aead::SecretKey;
+    use orion::aead::{SecretKey, streaming::Nonce};
 
     #[test]
     fn test_emoji_byte_round_trip() {
-
         let hex = "ABCDEF1234567890";
 
         let hex_bytes = hex.as_bytes();
@@ -157,7 +154,7 @@ mod test {
         let encoded_from_bytes = EmojiEncodedBytes::from_bytes(&hex_bytes);
 
         let expected_emoji = "💉🦕💢🛒🦝🐾📣🤟🍑🍃😮💎📢🌱🖕🌈🤕";
-        
+
         println!("Do emoji match?");
         assert_eq!(encoded_from_bytes.0, expected_emoji);
         assert_eq!(encoded_from_bytes.0, expected_emoji);
@@ -167,7 +164,7 @@ mod test {
         println!("Does decoding match?");
         assert_eq!(hex_bytes, byte_decoded);
 
-        assert_eq!(hex_bytes.len(), 16); // byte encoding 
+        assert_eq!(hex_bytes.len(), 16); // byte encoding
         assert_eq!(expected_emoji.len(), 68) // emoji encoding = 4 bytes per + 4 for checksum
     }
 
@@ -179,7 +176,6 @@ mod test {
 
     #[test]
     fn test_blake_stuff() {
-
         let emoji_str = "🚨🦕📲🦕💭🎵🏹🌊🌴🦆💝💲🍫🚶😙📞😻🤑🐸🍒📢🐷🎸💨🍊😣🤓🧡🚩🦝💡🌺🌈🍩😏💣✊🥂🧚🖕🐝🍎🥰😼🔒🤕🍪🍏👀🌴🐻🎯🐈🌾🤧🍭🦆🛒🛒💢💎🐣🔪👏🦝";
         let password = EmojiEncodedBytes::blake_hash_to_secret(emoji_str.as_bytes().to_owned());
 
@@ -189,6 +185,29 @@ mod test {
         let decrypted = String::from_utf8(orion::aead::open(&key, &secret).unwrap()).unwrap();
 
         assert_eq!(decrypted, "secrets");
+    }
 
+    #[test]
+    fn test_emoji_view_encryption_stuff() {
+
+        let nonce_password = orion::pwhash::Password::generate(24).unwrap();
+        let nonce_bytes = nonce_password.unprotected_as_bytes();
+
+        let nonce_emoji = encode(nonce_bytes);
+        println!("encoded nonce: {}", nonce_emoji);
+
+        let plaintext = "i'm a secret";
+        let plaintext_bytes = plaintext.as_bytes();
+
+        let auth_password = orion::pwhash::Password::generate(32).unwrap();
+        let auth_bytes = auth_password.unprotected_as_bytes();
+
+        let auth_emoji = encode(auth_bytes);
+        println!("encoded auth: {}", auth_emoji);
+
+        let encrypted = seal_with_view_key(&auth_emoji, &nonce_emoji, &plaintext_bytes).unwrap();
+        let encrypted_2 = seal_with_view_key(&auth_emoji, &nonce_emoji, &plaintext_bytes).unwrap();
+
+        assert_eq!(encrypted, encrypted_2);
     }
 }

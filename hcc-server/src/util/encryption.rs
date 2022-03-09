@@ -1,27 +1,14 @@
 use domain::server_config::ServerConfig;
 use orion::aead;
+use orion::aead::streaming::Nonce;
 use orion::errors::UnknownCryptoError;
+use orion::hazardous::aead::xchacha20poly1305;
+use orion::hazardous::mac::poly1305::POLY1305_OUTSIZE;
+use orion::hazardous::stream::xchacha20::XCHACHA_NONCESIZE;
 use orion::kex::{EphemeralClientSession, EphemeralServerSession, SecretKey};
 use serde::{Deserialize, Serialize};
 
 use super::emoji;
-
-pub async fn encrypt_str_emoji(
-    body: &str,
-    secrets: &SharedKeyring,
-) -> Result<String, UnknownCryptoError> {
-    let message = secrets.encrypt_broadcast_emoji(body).await?;
-    Ok(message.message)
-}
-
-
-pub async fn encrypt_str_base64(
-    body: &str,
-    secrets: &SharedKeyring,
-) -> Result<String, UnknownCryptoError> {
-    let message = secrets.encrypt_broadcast_base64(body).await?;
-    Ok(message.message)
-}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ServerEncryptedEmojiMessage {
@@ -59,10 +46,8 @@ impl UserEncryptedEmojiMessage {
     }
 }
 
-
-
 pub struct ServerEncryptedBase64Message {
-    pub message: String
+    pub message: String,
 }
 
 impl ServerEncryptedBase64Message {
@@ -77,9 +62,8 @@ impl ServerEncryptedBase64Message {
     }
 }
 
-
 pub struct UserEncryptedBase64Message {
-    pub message: String
+    pub message: String,
 }
 
 impl UserEncryptedBase64Message {
@@ -108,13 +92,9 @@ struct TopSecretSharedKeyring {
 }
 
 impl EncryptedKeyring {
-    pub fn decrypt_with_secret(
-        &self,
-        secret_slice: &[u8],
-    ) -> Result<SharedKeyring, UnknownCryptoError> {
-        let message = emoji::decode(&self.b);
-        let secret: SecretKey = SecretKey::from_slice(&secret_slice)?;
-        let bytes = aead::open(&secret, &message)?;
+    pub fn open_with_emoji(&self, emoji_key: &str) -> Result<SharedKeyring, UnknownCryptoError> {
+        let bytes = open_with_key(emoji_key, &self.b).unwrap();
+
         let json = String::from_utf8(bytes).unwrap();
         let shared_keyring: TopSecretSharedKeyring =
             serde_json::from_str(&json).expect("valid json");
@@ -126,18 +106,14 @@ impl EncryptedKeyring {
         })
     }
 
-    pub fn decrypt_global(
-        &self,
-        config: &ServerConfig,
-    ) -> Result<SharedKeyring, UnknownCryptoError> {
-        self.decrypt_with_secret(&emoji::decode(&config.session_secret))
+    pub fn open(&self, config: &ServerConfig) -> Result<SharedKeyring, UnknownCryptoError> {
+        self.open_with_emoji(&config.encryption_key_emoji)
     }
 
-    pub fn encrypt_with_secret(
+    pub fn seal_with_emoji(
         keyring: &SharedKeyring,
-        secret_slice: &[u8],
+        emoji_key: &str
     ) -> Result<EncryptedKeyring, UnknownCryptoError> {
-        let secret: SecretKey = SecretKey::from_slice(&secret_slice)?;
         let shared_keyring = TopSecretSharedKeyring {
             a: keyring.broadcast.to_owned(),
             b: keyring.user.to_owned(),
@@ -145,17 +121,17 @@ impl EncryptedKeyring {
             y: keyring.user_secret.to_owned(),
         };
         let message = serde_json::to_string(&shared_keyring).expect("serialize");
-        let bytes = aead::seal(&secret, &message.as_bytes())?;
+        let bytes = seal_with_key(emoji_key, &message.as_bytes())?;
         Ok(EncryptedKeyring {
             b: emoji::encode(&bytes),
         })
     }
 
-    pub fn encrypt_global(
+    pub fn seal(
         keyring: &SharedKeyring,
         config: &ServerConfig,
     ) -> Result<EncryptedKeyring, UnknownCryptoError> {
-        EncryptedKeyring::encrypt_with_secret(keyring, &emoji::decode(&config.session_secret))
+        EncryptedKeyring::seal_with_emoji(keyring, &config.encryption_key_emoji)
     }
 }
 
@@ -173,16 +149,100 @@ pub struct SharedKeyring {
     pub user_secret: String,
 }
 
+pub fn open_with_key(
+    emoji_encoded_secret: &str,
+    emoji_cipher_message: &str,
+) -> Result<Vec<u8>, UnknownCryptoError> {
+    let cipher_bytes = emoji::decode(emoji_cipher_message);
+    let secret_slice = emoji::decode(emoji_encoded_secret);
+
+    let secret: SecretKey = SecretKey::from_slice(&secret_slice)?;
+    let bytes = aead::open(&secret, &cipher_bytes)?;
+
+    Ok(bytes)
+}
+
+pub fn seal_with_key(
+    emoji_encoded_secret: &str,
+    plaintext_bytes: &[u8],
+) -> Result<Vec<u8>, UnknownCryptoError> {
+    let secret_bytes = emoji::decode(emoji_encoded_secret);
+    let secret = SecretKey::from_slice(&secret_bytes)?;
+    let bytes = aead::seal(&secret, plaintext_bytes)?;
+    Ok(bytes)
+}
+
+pub fn seal_with_key_emoji(
+    emoji_encoded_secret: &str,
+    plaintext_bytes: &[u8],
+) -> Result<String, UnknownCryptoError> {
+    let bytes = seal_with_key(emoji_encoded_secret, plaintext_bytes)?;
+    let message = emoji::encode(&bytes);
+    Ok(message)
+}
+
+pub fn seal_with_view_key_emoji(
+    emoji_encoded_secret: &str,
+    emoji_encoded_nonce: &str,
+    plaintext_bytes: &[u8],
+) -> Result<String, UnknownCryptoError> {
+    let bytes = seal_with_view_key(emoji_encoded_secret, emoji_encoded_nonce, plaintext_bytes)?;
+    let message = emoji::encode(&bytes);
+    Ok(message)
+}
+
+pub fn seal_with_view_key(
+    emoji_encoded_secret: &str,
+    emoji_encoded_nonce: &str,
+    plaintext_bytes: &[u8],
+) -> Result<Vec<u8>, UnknownCryptoError> {
+    let secret_bytes = emoji::decode(emoji_encoded_secret);
+    let nonce_bytes = emoji::decode(emoji_encoded_nonce);
+
+    let _key = SecretKey::from_slice(&secret_bytes)?;
+
+    // adapted from aead::seal()
+
+    let out_len = match plaintext_bytes
+        .len()
+        .checked_add(XCHACHA_NONCESIZE + POLY1305_OUTSIZE)
+    {
+        Some(min_out_len) => min_out_len,
+        None => return Err(UnknownCryptoError),
+    };
+
+    let nonce = Nonce::from_slice(&nonce_bytes).unwrap();
+
+    let mut dst_out = vec![0u8; out_len];
+
+    dst_out[..XCHACHA_NONCESIZE].copy_from_slice(nonce.as_ref());
+
+    xchacha20poly1305::seal(
+        &orion::hazardous::aead::chacha20poly1305::SecretKey::from_slice(
+            _key.unprotected_as_bytes(),
+        )?,
+        &nonce,
+        plaintext_bytes,
+        None,
+        &mut dst_out[XCHACHA_NONCESIZE..],
+    )?;
+
+    Ok(dst_out)
+}
+
 impl SharedKeyring {
-    // todo: this should probably be wired up into some kind of cargo run utility...
-    // since it needs to go inside your .env file for the program to work
-    pub async fn generate_password_emoji() -> Result<String, UnknownCryptoError> {
-        Ok(emoji::encode(
-            orion::pwhash::Password::generate(32)?.unprotected_as_bytes(),
-        ))
+
+    pub async fn encrypt_broadcast_emoji(
+        &self,
+        plaintext: &str,
+    ) -> Result<ServerEncryptedEmojiMessage, UnknownCryptoError> {
+        let message = seal_with_key_emoji(&self.broadcast_secret, plaintext.as_bytes())?;
+
+        Ok(ServerEncryptedEmojiMessage {
+            sender: self.broadcast.to_owned(),
+            message: message,
+        })
     }
-
-
 
     pub async fn encrypt_broadcast_base64(
         &self,
@@ -208,30 +268,14 @@ impl SharedKeyring {
         })
     }
 
-
-    pub async fn encrypt_broadcast_emoji(
-        &self,
-        plaintext: &str,
-    ) -> Result<ServerEncryptedEmojiMessage, UnknownCryptoError> {
-        let secret_bytes = emoji::decode(&self.broadcast_secret);
-        let secret = SecretKey::from_slice(&secret_bytes)?;
-        let bytes = aead::seal(&secret, plaintext.as_bytes())?;
-        Ok(ServerEncryptedEmojiMessage {
-            sender: self.broadcast.to_owned(),
-            message: emoji::encode(&bytes),
-        })
-    }
-
     pub async fn encrypt_user_emoji(
         &self,
         plaintext: &str,
     ) -> Result<UserEncryptedEmojiMessage, UnknownCryptoError> {
-        let secret_bytes = emoji::decode(&self.user_secret);
-        let secret = SecretKey::from_slice(&secret_bytes)?;
-        let bytes = aead::seal(&secret, plaintext.as_bytes())?;
+        let message = seal_with_key_emoji(&self.user_secret, plaintext.as_bytes())?;
         Ok(UserEncryptedEmojiMessage {
             sender: self.user.to_owned(),
-            message: emoji::encode(&bytes),
+            message: message
         })
     }
 
@@ -276,7 +320,6 @@ mod test {
 
     #[async_std::test]
     async fn test_some_basic_password_gen() {
-
         let password = SharedKeyring::generate_password_emoji().await;
 
         println!("{:?}", password);

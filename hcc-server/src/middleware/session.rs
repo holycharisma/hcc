@@ -22,7 +22,7 @@ pub async fn init_session_middleware(
 
     let middleware = tide::sessions::SessionMiddleware::new(
         store,
-        String::from(&config.session_secret).as_bytes(),
+        String::from(&config.encryption_key_emoji).as_bytes(),
     )
     .with_cookie_name(String::from(&config.session_cookie_name))
     .with_session_ttl(Some(Duration::from_secs(session_hours_u64 * 60 * 60)));
