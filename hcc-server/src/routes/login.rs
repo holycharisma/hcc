@@ -1,6 +1,7 @@
 use tide::prelude::*;
 use tide::{http::mime, Redirect, Request, Response, Result};
 
+use crate::dao;
 use crate::util::emoji;
 use crate::util::encryption;
 use crate::util::password::PasswordUtil;
@@ -66,47 +67,48 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
         }
     };
 
-    let super_user_email = &req.state().config.super_user_email;
-    let super_user_password = &req.state().config.super_user_pwhash_emoji;
+    let search = dao::user::UserDao::find_by_email(&req.state(), &form.email.as_bytes())
+        .await
+        .unwrap();
 
-    let top_secret_email = {
-        encryption::seal_with_view_key_emoji(
-            &req.state().config.encryption_key_emoji,
-            &req.state().config.encryption_view_key_emoji,
-            &form.email.as_bytes(),
-        )
-        .unwrap()
-    };
-
-    let user_pwhash = emoji::decode(super_user_password);
-
-    let expected_super_user_email = {
-        encryption::seal_with_view_key_emoji(
-            &req.state().config.encryption_key_emoji,
-            &req.state().config.encryption_view_key_emoji,
-            super_user_email.as_bytes(),
-        )
-        .unwrap()
-    };
-
-    let email_is_valid = top_secret_email == expected_super_user_email;
-
-    let pass_is_valid =  PasswordUtil::verify_hashed_bytes(&form.password, &user_pwhash);
-
-    if email_is_valid && pass_is_valid {
-        let session = req.session_mut();
-
-        let user = SessionUser {
-            email: String::from(&form.email),
-        };
-
-        let _res = session.insert("user", user.clone()).unwrap();
-
-        // redirect to app now that we have set user
-        Ok(Redirect::new("/app").into())
-    } else {
-        tide::log::info!("Failed login for user: {}", form.email);
+    if search.is_none() {
         let response = Response::builder(403).build();
         Ok(response)
+    } else {
+        let u = search.unwrap();
+
+        let user_pwhash = emoji::decode(&u.password);
+        let expected_email_hash = u.email_hash;
+
+        let form_email_hash = {
+            encryption::get_masked_hash(
+                &req.state().config.encryption_key_emoji,
+                &req.state().config.encryption_view_key_emoji,
+                form.email.as_bytes()
+            )
+        }.unwrap();
+
+        let email_is_valid = form_email_hash == expected_email_hash;
+
+        let pass_is_valid = email_is_valid && {
+            PasswordUtil::verify_hashed_bytes(&form.password, &user_pwhash)
+        };
+
+        if email_is_valid && pass_is_valid {
+            let session = req.session_mut();
+
+            let user = SessionUser {
+                email: String::from(&form.email),
+            };
+
+            let _res = session.insert("user", user.clone()).unwrap();
+
+            // redirect to app now that we have set user
+            Ok(Redirect::new("/app").into())
+        } else {
+            tide::log::info!("Failed login for user: {}", form.email);
+            let response = Response::builder(403).build();
+            Ok(response)
+        }
     }
 }

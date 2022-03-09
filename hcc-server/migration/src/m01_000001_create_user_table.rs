@@ -13,10 +13,12 @@ impl MigrationName for Migration {
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        // we use hash as companion for our unique / index searchable keys
         let sql = "\
         CREATE TABLE user_email_password ( \
-            uid serial NOT NULL PRIMARY KEY, \
-            email varchar NOT NULL UNIQUE, \
+            id serial NOT NULL PRIMARY KEY, \
+            email varchar NOT NULL, \
+            email_hash varchar NOT NULL UNIQUE, \
             password varchar NOT NULL, \
             active boolean NOT NULL \
         )";

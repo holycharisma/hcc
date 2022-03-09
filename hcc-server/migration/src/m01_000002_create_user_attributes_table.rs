@@ -15,7 +15,7 @@ impl MigrationTrait for Migration {
         let sql = "\
         CREATE TABLE user_attributes ( \
             id serial NOT NULL PRIMARY KEY, \
-            uid integer NOT NULL REFERENCES user_email_password (uid), \
+            uid integer NOT NULL REFERENCES user_email_password (id), \
             display varchar NOT NULL UNIQUE, \
             created_at timestamp with time zone NOT NULL, \
             last_login timestamp with time zone NULL, \

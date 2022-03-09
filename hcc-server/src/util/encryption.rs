@@ -3,6 +3,7 @@ use orion::aead;
 use orion::aead::streaming::Nonce;
 use orion::errors::UnknownCryptoError;
 use orion::hazardous::aead::xchacha20poly1305;
+use orion::hazardous::hash::blake2::blake2b::Hasher;
 use orion::hazardous::mac::poly1305::POLY1305_OUTSIZE;
 use orion::hazardous::stream::xchacha20::XCHACHA_NONCESIZE;
 use orion::kex::{EphemeralClientSession, EphemeralServerSession, SecretKey};
@@ -181,21 +182,31 @@ pub fn seal_with_key_emoji(
     Ok(message)
 }
 
-pub fn seal_with_view_key_emoji(
+pub fn mask_with_view_key_emoji(
     emoji_encoded_secret: &str,
-    emoji_encoded_nonce: &str,
+    emoji_encoded_nonce: &str,  
     plaintext_bytes: &[u8],
 ) -> Result<String, UnknownCryptoError> {
-    let bytes = seal_with_view_key(emoji_encoded_secret, emoji_encoded_nonce, plaintext_bytes)?;
+    let bytes = mask_with_view_key(emoji_encoded_secret, emoji_encoded_nonce, plaintext_bytes)?;
     let message = emoji::encode(&bytes);
     Ok(message)
 }
 
-pub fn seal_with_view_key(
+pub fn mask_with_view_key(
     emoji_encoded_secret: &str,
     emoji_encoded_nonce: &str,
     plaintext_bytes: &[u8],
 ) -> Result<Vec<u8>, UnknownCryptoError> {
+
+    /*
+    
+        because this re-uses a nonce it is no longer "encrypted" 
+
+        a very clever attacker can intercept these masked messages and reverse engineer their way to the plaintext
+        the basic security relies on the fact the nonce will a number which is only used once
+    
+    */
+
     let secret_bytes = emoji::decode(emoji_encoded_secret);
     let nonce_bytes = emoji::decode(emoji_encoded_nonce);
 
@@ -314,14 +325,51 @@ impl SharedKeyring {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
+pub struct EmojiEncryptedIndexed {
+    pub encrypted: String,
+    pub hash: String
+}
 
-    #[async_std::test]
-    async fn test_some_basic_password_gen() {
-        let password = SharedKeyring::generate_password_emoji().await;
+pub fn get_masked_hash(
+    emoji_encoded_secret: &str,
+    emoji_encoded_nonce: &str,  
+    plaintext_bytes: &[u8])-> Result<String, UnknownCryptoError> {
 
-        println!("{:?}", password);
+        let hashcode = Hasher::Blake2b512.digest(plaintext_bytes)?;
+
+        let masked_hash = mask_with_view_key_emoji(
+            emoji_encoded_secret,
+            emoji_encoded_nonce,
+            &hashcode.as_ref()
+        )? ;
+
+        Ok(masked_hash)
+}
+
+impl EmojiEncryptedIndexed {
+    pub fn new(
+        emoji_encoded_secret: &str,
+        emoji_encoded_nonce: &str,  
+        plaintext_bytes: &[u8],
+    ) -> Result<EmojiEncryptedIndexed, UnknownCryptoError> {
+
+        let masked_hash = get_masked_hash(
+            emoji_encoded_secret, 
+            emoji_encoded_nonce, 
+            plaintext_bytes
+        )?;
+
+        let encrypted = seal_with_key_emoji(
+            emoji_encoded_secret,
+            plaintext_bytes
+        )?;
+
+        let i = EmojiEncryptedIndexed {
+            encrypted: encrypted,
+            hash: masked_hash
+        };
+
+        Ok(i)
+
     }
 }

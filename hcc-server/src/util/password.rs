@@ -26,11 +26,9 @@ impl PasswordUtil {
 #[cfg(test)]
 mod test {
 
-    use crate::util::{encryption::seal_with_view_key, emoji};
+    use crate::util::emoji;
 
     use super::*;
-    use orion::aead::{SecretKey, streaming::Nonce};
-
 
     #[test]
     fn test_some_password_stuff() {

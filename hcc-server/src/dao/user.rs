@@ -5,36 +5,54 @@ use domain::server_config::ServerConfig;
 use domain::sea_orm::entities::prelude::UserEmailPassword;
 use domain::sea_orm::entities::user_email_password;
 
-use sea_orm::{EntityTrait, Set};
+use sea_orm::*;
 
 pub struct UserDao {}
 
 impl UserDao {
+    pub async fn find_by_email(wiring: &ServerWiring, email_plaintext_bytes:  &[u8]) -> Result<Option<user_email_password::Model>, ()> {
+        let hash = encryption::get_masked_hash(
+            &wiring.config.encryption_key_emoji, 
+            &wiring.config.encryption_view_key_emoji, 
+            email_plaintext_bytes
+        ).unwrap();
+
+        let matches_hash = user_email_password::Column::EmailHash.eq(hash);
+        
+        let res = UserEmailPassword::find().filter(matches_hash).limit(1).one(&wiring.db).await;
+
+        if res.is_ok() {
+            let i = res.unwrap();
+            Ok(i)
+        } else {
+            Err(())
+        }
+
+    }
+
     pub async fn insert_super_user(config: &ServerConfig, wiring: &ServerWiring) -> Result<(), ()> {
         let already_exists = UserEmailPassword::find_by_id(1)
             .one(&wiring.db)
             .await
             .unwrap();
 
-        tide::log::info!("starting more weird super user stuff!");
-
         if already_exists.is_some() {
             tide::log::info!("super user already exists!");
         } else {
             tide::log::info!("super user does not exist!");
 
-            let em = encryption::seal_with_view_key_emoji(
+            let em = encryption::EmojiEncryptedIndexed::new(
                 &config.encryption_key_emoji,
-                &config.encryption_view_key_emoji,
-                &config.super_user_email.as_bytes(),
-            )
-            .unwrap();
+                &config.encryption_view_key_emoji, &config.super_user_email.as_bytes(),
+            ).unwrap();
 
-            let encrypted_email = String::from(em.clone());
+            let encrypted_email = String::from(em.encrypted.clone());
+            let email_hash = String::from(em.hash.clone());
             let encoded_hash = String::from(config.super_user_pwhash_emoji.clone());
 
             let s = user_email_password::ActiveModel {
                 email: Set(encrypted_email),
+                email_hash: Set(email_hash),
                 password: Set(encoded_hash),
                 active: Set(true),
                 ..Default::default()

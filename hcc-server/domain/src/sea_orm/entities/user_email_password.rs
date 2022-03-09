@@ -6,9 +6,11 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "user_email_password")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub uid: i32,
+    pub id: i32,
     #[sea_orm(unique)]
     pub email: String,
+    #[sea_orm(unique)]
+    pub email_hash: String,
     pub password: String,
     pub active: bool,
 }
