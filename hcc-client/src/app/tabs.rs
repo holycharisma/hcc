@@ -26,16 +26,6 @@ impl fmt::Display for Tab {
 pub fn get_tabs() -> [Tab; 3] {
     [
         Tab {
-            name: "about".to_string(),
-            html: html! {
-            <div>
-              <h1>{ "👋" }</h1>
-              <p>{" good to see you..." }</p>
-            </div>
-            },
-            htmx: false,
-        },
-        Tab {
             name: "media".to_string(),
             html: html! {
               <div>{" media.. "}</div>
@@ -46,10 +36,22 @@ pub fn get_tabs() -> [Tab; 3] {
             name: "hcc".to_string(),
             html: html! {
                 <div>
-                        <div id="hcc-top-hx-target" hx-get="/handshake" hx-trigger="load" />
-                  </div>
+                    <div id="hcc-top-hx-target"
+                         hx-get="/handshake"
+                         hx-trigger="load" />
+                 </div>
             },
             htmx: true,
+        },
+        Tab {
+            name: "about".to_string(),
+            html: html! {
+            <div>
+              <h1>{ "👋" }</h1>
+              <p>{"nice to see you..." }</p>
+            </div>
+            },
+            htmx: false,
         },
     ]
 }

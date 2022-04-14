@@ -1,4 +1,4 @@
-<div class="bg-white bg-opacity-75 p-4 rounded-sm" hx-boost="true">
+<div class="bg-white bg-opacity-75 p-4 rounded-sm">
     <form class="max-w-md" hx-post="/login" hx-target="#hcc-top-hx-target">
       <div class="grid grid-cols-1 gap-6">
         <label class="block">
@@ -20,12 +20,20 @@
           />
         </label>
         <label class="block">
+          <span class="text-gray-700">Password Again</span>
+          <input
+            name="password_confirm"
+            type="password_confirm"
+            class="mt-1 block w-full form-input focus:border-violet-500"
+            placeholder=""
+          />
+        </label>
+        <label class="block">
           <button
             class="btn-violet inline-block text-sm md:text-base font-semibold text-center rounded-lg outline-none transition duration-100 px-8 py-3">
-            Login
+            Signup
           </button>
         </label>
       </div>
     </form>
-    <p>No account? why not <a href="/signup" hx-target="#hcc-top-hx-target">sign up</a></p>
 </div>

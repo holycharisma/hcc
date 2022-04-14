@@ -113,7 +113,7 @@ impl EncryptedKeyring {
 
     pub fn seal_with_emoji(
         keyring: &SharedKeyring,
-        emoji_key: &str
+        emoji_key: &str,
     ) -> Result<EncryptedKeyring, UnknownCryptoError> {
         let shared_keyring = TopSecretSharedKeyring {
             a: keyring.broadcast.to_owned(),
@@ -184,7 +184,7 @@ pub fn seal_with_key_emoji(
 
 pub fn mask_with_view_key_emoji(
     emoji_encoded_secret: &str,
-    emoji_encoded_nonce: &str,  
+    emoji_encoded_nonce: &str,
     plaintext_bytes: &[u8],
 ) -> Result<String, UnknownCryptoError> {
     let bytes = mask_with_view_key(emoji_encoded_secret, emoji_encoded_nonce, plaintext_bytes)?;
@@ -197,14 +197,16 @@ pub fn mask_with_view_key(
     emoji_encoded_nonce: &str,
     plaintext_bytes: &[u8],
 ) -> Result<Vec<u8>, UnknownCryptoError> {
-
     /*
-    
-        because this re-uses a nonce it is no longer "encrypted" 
+
+        because this re-uses a nonce it is no longer "encrypted"
 
         a very clever attacker can intercept these masked messages and reverse engineer their way to the plaintext
         the basic security relies on the fact the nonce will a number which is only used once
-    
+
+        our actual guarantee is that for each value, we have a unique nonce: the same nonce yield the same bytes encrypting the same bytes
+        - WARNING: if the same nonce is used to decrypt two values then the values can be used to decrypt one another!
+
     */
 
     let secret_bytes = emoji::decode(emoji_encoded_secret);
@@ -242,7 +244,6 @@ pub fn mask_with_view_key(
 }
 
 impl SharedKeyring {
-
     pub async fn encrypt_broadcast_emoji(
         &self,
         plaintext: &str,
@@ -286,7 +287,7 @@ impl SharedKeyring {
         let message = seal_with_key_emoji(&self.user_secret, plaintext.as_bytes())?;
         Ok(UserEncryptedEmojiMessage {
             sender: self.user.to_owned(),
-            message: message
+            message: message,
         })
     }
 
@@ -327,49 +328,41 @@ impl SharedKeyring {
 
 pub struct EmojiEncryptedIndexed {
     pub encrypted: String,
-    pub hash: String
+    pub hash: String,
 }
 
 pub fn get_masked_hash(
     emoji_encoded_secret: &str,
-    emoji_encoded_nonce: &str,  
-    plaintext_bytes: &[u8])-> Result<String, UnknownCryptoError> {
+    emoji_encoded_nonce: &str,
+    plaintext_bytes: &[u8],
+) -> Result<String, UnknownCryptoError> {
+    let hashcode = Hasher::Blake2b512.digest(plaintext_bytes)?;
 
-        let hashcode = Hasher::Blake2b512.digest(plaintext_bytes)?;
+    let masked_hash = mask_with_view_key_emoji(
+        emoji_encoded_secret,
+        emoji_encoded_nonce,
+        &hashcode.as_ref(),
+    )?;
 
-        let masked_hash = mask_with_view_key_emoji(
-            emoji_encoded_secret,
-            emoji_encoded_nonce,
-            &hashcode.as_ref()
-        )? ;
-
-        Ok(masked_hash)
+    Ok(masked_hash)
 }
 
 impl EmojiEncryptedIndexed {
     pub fn new(
         emoji_encoded_secret: &str,
-        emoji_encoded_nonce: &str,  
+        emoji_encoded_nonce: &str,
         plaintext_bytes: &[u8],
     ) -> Result<EmojiEncryptedIndexed, UnknownCryptoError> {
+        let masked_hash =
+            get_masked_hash(emoji_encoded_secret, emoji_encoded_nonce, plaintext_bytes)?;
 
-        let masked_hash = get_masked_hash(
-            emoji_encoded_secret, 
-            emoji_encoded_nonce, 
-            plaintext_bytes
-        )?;
-
-        let encrypted = seal_with_key_emoji(
-            emoji_encoded_secret,
-            plaintext_bytes
-        )?;
+        let encrypted = seal_with_key_emoji(emoji_encoded_secret, plaintext_bytes)?;
 
         let i = EmojiEncryptedIndexed {
             encrypted: encrypted,
-            hash: masked_hash
+            hash: masked_hash,
         };
 
         Ok(i)
-
     }
 }

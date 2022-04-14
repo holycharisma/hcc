@@ -3,7 +3,7 @@ pub mod hcc_frame_js;
 
 pub mod handshake;
 
-pub mod login;
+pub mod user;
 pub mod app;
 
 pub mod dummy_secret;

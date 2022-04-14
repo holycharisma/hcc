@@ -67,7 +67,9 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
         }
     };
 
-    let search = dao::user::UserDao::find_by_email(&req.state(), &form.email.as_bytes())
+    let plaintext_email = &form.email.as_bytes();
+    let wiring: &ServerWiring = &req.state();
+    let search = dao::user::UserDao::find_by_email(wiring, plaintext_email)
         .await
         .unwrap();
 
@@ -84,21 +86,26 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
             encryption::get_masked_hash(
                 &req.state().config.encryption_key_emoji,
                 &req.state().config.encryption_view_key_emoji,
-                form.email.as_bytes()
+                plaintext_email.to_owned(),
             )
-        }.unwrap();
+        }
+        .unwrap();
 
         let email_is_valid = form_email_hash == expected_email_hash;
 
-        let pass_is_valid = email_is_valid && {
-            PasswordUtil::verify_hashed_bytes(&form.password, &user_pwhash)
-        };
+        let pass_is_valid =
+            email_is_valid && { PasswordUtil::verify_hashed_bytes(&form.password, &user_pwhash) };
 
         if email_is_valid && pass_is_valid {
+            let super_email = &wiring.config.super_user_email.as_bytes();
+
+            let is_admin_user = plaintext_email == super_email;
+
             let session = req.session_mut();
 
             let user = SessionUser {
                 email: String::from(&form.email),
+                is_admin: is_admin_user,
             };
 
             let _res = session.insert("user", user.clone()).unwrap();

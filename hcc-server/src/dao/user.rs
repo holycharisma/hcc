@@ -10,16 +10,24 @@ use sea_orm::*;
 pub struct UserDao {}
 
 impl UserDao {
-    pub async fn find_by_email(wiring: &ServerWiring, email_plaintext_bytes:  &[u8]) -> Result<Option<user_email_password::Model>, ()> {
+    pub async fn find_by_email(
+        wiring: &ServerWiring,
+        email_plaintext_bytes: &[u8],
+    ) -> Result<Option<user_email_password::Model>, ()> {
         let hash = encryption::get_masked_hash(
-            &wiring.config.encryption_key_emoji, 
-            &wiring.config.encryption_view_key_emoji, 
-            email_plaintext_bytes
-        ).unwrap();
+            &wiring.config.encryption_key_emoji,
+            &wiring.config.encryption_view_key_emoji,
+            email_plaintext_bytes,
+        )
+        .unwrap();
 
         let matches_hash = user_email_password::Column::EmailHash.eq(hash);
-        
-        let res = UserEmailPassword::find().filter(matches_hash).limit(1).one(&wiring.db).await;
+
+        let res = UserEmailPassword::find()
+            .filter(matches_hash)
+            .limit(1)
+            .one(&wiring.db)
+            .await;
 
         if res.is_ok() {
             let i = res.unwrap();
@@ -27,14 +35,12 @@ impl UserDao {
         } else {
             Err(())
         }
-
     }
 
     pub async fn insert_super_user(config: &ServerConfig, wiring: &ServerWiring) -> Result<(), ()> {
-        let already_exists = UserEmailPassword::find_by_id(1)
-            .one(&wiring.db)
-            .await
-            .unwrap();
+        let plaintext_login = &config.super_user_email.as_bytes();
+
+        let already_exists = Self::find_by_email(wiring, plaintext_login).await.unwrap();
 
         if already_exists.is_some() {
             tide::log::info!("super user already exists!");
@@ -43,8 +49,10 @@ impl UserDao {
 
             let em = encryption::EmojiEncryptedIndexed::new(
                 &config.encryption_key_emoji,
-                &config.encryption_view_key_emoji, &config.super_user_email.as_bytes(),
-            ).unwrap();
+                &config.encryption_view_key_emoji,
+                plaintext_login,
+            )
+            .unwrap();
 
             let encrypted_email = String::from(em.encrypted.clone());
             let email_hash = String::from(em.hash.clone());

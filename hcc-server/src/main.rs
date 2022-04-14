@@ -49,8 +49,13 @@ async fn main() -> tide::Result<()> {
     app.at("/handshake").get(routes::handshake::get);
 
     app.at("/login")
-        .get(routes::login::get)
-        .post(routes::login::post);
+        .get(routes::user::login::get)
+        .post(routes::user::login::post);
+
+    app.at("/signup")
+    .get(routes::user::signup::get)
+    .post(routes::user::signup::post);
+
 
     app.at("/app").get(routes::app::get);
 

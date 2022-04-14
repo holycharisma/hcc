@@ -5,6 +5,15 @@ const htmx = (window.htmx = require("htmx.org"));
 
 let jwt;
 
+let formTransform = {
+  "password_confirm": function(key, value, keyring) {
+    return ["password_bcrypt", keyring.encrypt(value)];
+  },
+  "__encrypt": function(key, value, keyring) {
+    return [key, keyring.encrypt(value)];
+  }
+}
+
 function signRequestHeaders(evt) {
   // notice: both AUTH_TOKEN and ANTI_FORGERY_TOKEN
   // are already encrypted using the client encryption key received by the JWT session handshake
@@ -25,7 +34,10 @@ function signRequestHeaders(evt) {
     let keyring = encryption.getKeyring();
 
     for (const [key, value] of Object.entries(evt.detail.parameters)) {
-      evt.detail.parameters[key] = keyring.encrypt(value);
+      let lookupKey = formTransform.hasOwnProperty(key) ? key : "__encrypt";
+      let [nextKey, nextValue] = formTransform[lookupKey](key, value, keyring);
+      delete evt.detail.parameters[key] ;
+      evt.detail.parameters[nextKey] = nextValue;
     }
   }
 }
