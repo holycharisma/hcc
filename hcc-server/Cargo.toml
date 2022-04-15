@@ -14,7 +14,7 @@ async-std = { version = "1.10.0", features = ["attributes"] }
 serde = { version = "1.0", features = ["derive"] }
 dotenv = "0.15.0"
 async-sqlx-session = { version = "0.4.0", features = ["pg", "async_std"] }
-sea-orm = { version = "^0.6", features = [ "with-chrono", "runtime-async-std-native-tls", "sqlx-postgres", "macros" ], default-features = false }
+sea-orm = { version = "^0.7", features = [ "with-chrono", "runtime-async-std-native-tls", "sqlx-postgres", "macros" ], default-features = false }
 
 base64 = "0.13.0"
 lazy_static = "1"
@@ -25,6 +25,7 @@ chrono = "0.4.19"
 bcrypt = "0.12"
 orion = "0.17.1"
 askama = "0.11.1"
+tinytemplate = "1.2.1"
 
 domain = { path = "domain" }
 migration = { path = "migration" }
