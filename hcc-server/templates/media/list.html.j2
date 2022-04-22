@@ -1,3 +1,7 @@
 <div>
-    Hello world, I am the Media WALL
+    <div class="media-wall">
+    {% for node in media %}
+        {{ node.innerHTML|safe }}
+    {% endfor %}
+    </div>
 </div>

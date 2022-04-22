@@ -4,6 +4,7 @@ mod app;
 mod emoji;
 mod encryption;
 mod htmx;
+mod media_renderer;
 
 #[macro_use]
 extern crate lazy_static;
@@ -12,6 +13,8 @@ use wasm_bindgen::prelude::*;
 
 pub use encryption::recv_claims;
 pub use encryption::SharedKeyring;
+
+pub use media_renderer::render_media_node;
 
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]

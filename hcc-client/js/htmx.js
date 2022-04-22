@@ -3,6 +3,44 @@ import encryption from "./encryption";
 import "htmx.org";
 const htmx = (window.htmx = require("htmx.org"));
 
+
+function is_element(el) {
+  return el && typeof el.getElementsByClassName === "function";
+}
+
+function init_media_wall_plugin(el) {
+  /*
+
+  media wall transforms a server-side widget into a yew component... needs a little wiring to hook it together
+
+  important classes here are:
+    div.media-wall
+      > div.media_node
+
+  */
+
+  if (is_element(el)) {
+    let collection = el.getElementsByClassName("media-wall");
+    let found = collection[0];
+    if (is_element(found)) {
+      collection = found.getElementsByClassName("media-node");
+      Array.from(collection).forEach(function(item) {
+        let data = item.dataset;
+        let slug = data["slug"];
+        let medium = data["medium"];
+        let media = JSON.parse(atob(data["media"]));
+        if (typeof window.render_media_node === "function") {
+          window.render_media_node(item, slug, medium, media);
+        }
+      });
+    }
+  }
+}
+
+htmx.onLoad(function(target) {
+  init_media_wall_plugin(target);
+});
+
 let jwt;
 
 let formTransform = {
