@@ -140,10 +140,10 @@ pub fn decode(emojis: &str) -> Vec<u8> {
 #[cfg(test)]
 mod test {
 
-    use crate::util::encryption::mask_with_view_key_emoji;
+    use crate::util::encryption::DeterministicEmojiEncrypt;
 
     use super::*;
-    use orion::aead::{SecretKey, streaming::Nonce};
+    use orion::aead::{streaming::Nonce, SecretKey};
 
     #[test]
     fn test_emoji_byte_round_trip() {
@@ -188,8 +188,7 @@ mod test {
     }
 
     #[test]
-    fn test_emoji_view_encryption_stuff() {
-
+    fn test_emoji_deterministic_encryption_stuff() {
         let nonce_password = orion::pwhash::Password::generate(24).unwrap();
         let nonce_bytes = nonce_password.unprotected_as_bytes();
 
@@ -205,8 +204,14 @@ mod test {
         let auth_emoji = encode(auth_bytes);
         println!("encoded auth: {}", auth_emoji);
 
-        let encrypted = mask_with_view_key_emoji(&auth_emoji, &nonce_emoji, &plaintext_bytes).unwrap();
-        let encrypted_2 = mask_with_view_key_emoji(&auth_emoji, &nonce_emoji, &plaintext_bytes).unwrap();
+        let encrypted = DeterministicEmojiEncrypt::new(&auth_emoji, &nonce_emoji, &plaintext_bytes)
+            .unwrap()
+            .encrypted;
+
+        let encrypted_2 =
+            DeterministicEmojiEncrypt::new(&auth_emoji, &nonce_emoji, &plaintext_bytes)
+                .unwrap()
+                .encrypted;
 
         assert_eq!(encrypted, encrypted_2);
     }

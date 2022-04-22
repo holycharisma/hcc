@@ -11,7 +11,7 @@ use domain::session::SessionUser;
 use askama::Template; // bring trait in scope
 
 #[derive(Template)] // this will generate the code...
-#[template(path = "login.html.j2")] // using the template in this path, relative
+#[template(path = "user/login.html.j2")] // using the template in this path, relative
 struct LoginGetView {}
 
 pub async fn get(req: Request<ServerWiring>) -> Result {
@@ -83,15 +83,15 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
         let expected_email_hash = u.email_hash;
 
         let form_email_hash = {
-            encryption::get_masked_hash(
+            encryption::DeterministicEmojiEncrypt::new(
                 &req.state().config.encryption_key_emoji,
-                &req.state().config.encryption_view_key_emoji,
+                &req.state().config.encryption_salt_emoji,
                 plaintext_email.to_owned(),
             )
         }
         .unwrap();
 
-        let email_is_valid = form_email_hash == expected_email_hash;
+        let email_is_valid = form_email_hash.encrypted == expected_email_hash;
 
         let pass_is_valid =
             email_is_valid && { PasswordUtil::verify_hashed_bytes(&form.password, &user_pwhash) };

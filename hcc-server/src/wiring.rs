@@ -1,13 +1,13 @@
-use std::sync::Arc;
 use sea_orm::{Database, DatabaseConnection, DbErr};
+use std::sync::Arc;
 
 extern crate dotenv;
 
 use dotenv::dotenv;
 use std::env;
 
-use domain::server_config::ServerConfig;
 use crate::util::jwt::{JsonWebTokenSecrets, JsonWebTokenUtil};
+use domain::server_config::ServerConfig;
 
 #[derive(Clone)]
 pub struct ServerWiring {
@@ -17,7 +17,6 @@ pub struct ServerWiring {
 }
 
 impl ServerWiring {
-
     pub async fn database(config: &ServerConfig) -> Result<DatabaseConnection, DbErr> {
         let db = Database::connect(&config.postgres_sql_connection_url).await;
         db
@@ -36,8 +35,8 @@ impl ServerWiring {
                 .expect("Invalid configuration: HCC_SESSION_TTL_HOURS must be a number"),
             encryption_key_emoji: env::var("HCC_ENCRYPTION_KEY_EMOJI")
                 .expect("Invalid configuration: HCC_ENCRYPTION_KEY_EMOJI required"),
-            encryption_view_key_emoji: env::var("HCC_ENCRYPTION_VIEW_KEY_EMOJI")
-            .expect("Invalid configuration: HCC_ENCRYPTION_VIEW_KEY_EMOJI required"),
+            encryption_salt_emoji: env::var("HCC_ENCRYPTION_SALT_EMOJI")
+                .expect("Invalid configuration: HCC_ENCRYPTION_SALT_EMOJI required"),
             rsa_private_key_path: env::var("HCC_RSA_PRIVATE_KEY_PATH")
                 .expect("Invalid configuration: HCC_RSA_PRIVATE_KEY_PATH required"),
             rsa_public_key_path: env::var("HCC_RSA_PUBLIC_KEY_PATH")

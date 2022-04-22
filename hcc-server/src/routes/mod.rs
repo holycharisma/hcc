@@ -1,10 +1,12 @@
-pub mod index;
 pub mod hcc_frame_js;
+pub mod index;
 
 pub mod handshake;
 
-pub mod user;
 pub mod app;
+pub mod user;
+
+pub mod media;
 
 pub mod dummy_secret;
 

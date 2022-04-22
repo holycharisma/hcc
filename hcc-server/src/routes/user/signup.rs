@@ -11,7 +11,7 @@ use domain::session::SessionUser;
 use askama::Template; // bring trait in scope
 
 #[derive(Template)] // this will generate the code...
-#[template(path = "signup.html.j2")] // using the template in this path, relative
+#[template(path = "user/signup.html.j2")] // using the template in this path, relative
 struct SignupGetViewModel {}
 
 pub async fn get(req: Request<ServerWiring>) -> Result {
@@ -46,7 +46,7 @@ struct UserSignupDto {
 
 pub async fn post(mut req: Request<ServerWiring>) -> Result {
     return Ok(Redirect::new("/").into());
-      /* 
+    /*
     let form = {
         let encrypted_form: UserSignupDto = req.body_form().await?;
 
@@ -68,7 +68,7 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
             email: encrypted_email.decrypt(secrets).unwrap(),
             password: encrypted_password.decrypt(secrets).unwrap(),
         }
-    }; 
+    };
 
     let search = dao::user::UserDao::find_by_email(&req.state(), &form.email.as_bytes())
         .await
@@ -84,9 +84,9 @@ pub async fn post(mut req: Request<ServerWiring>) -> Result {
         let expected_email_hash = u.email_hash;
 
         let form_email_hash = {
-            encryption::get_masked_hash(
+            encryption::DeterministicEmojiEncrypted::new(
                 &req.state().config.encryption_key_emoji,
-                &req.state().config.encryption_view_key_emoji,
+                &req.state().config.encryption_salt_emoji,
                 form.email.as_bytes()
             )
         }.unwrap();

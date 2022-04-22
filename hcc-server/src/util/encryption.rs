@@ -3,11 +3,42 @@ use orion::aead;
 use orion::aead::streaming::Nonce;
 use orion::errors::UnknownCryptoError;
 use orion::hazardous::aead::xchacha20poly1305;
-use orion::hazardous::hash::blake2::blake2b::Hasher;
+use orion::hazardous::hash::blake2::blake2b;
 use orion::hazardous::mac::poly1305::POLY1305_OUTSIZE;
 use orion::hazardous::stream::xchacha20::XCHACHA_NONCESIZE;
 use orion::kex::{EphemeralClientSession, EphemeralServerSession, SecretKey};
 use serde::{Deserialize, Serialize};
+
+pub enum SmallBlakeHasher {
+    /// Blake2b with `24` as `size`.
+    Blake2b24,
+    /// Blake2b with `32` as `size`.
+    Blake2b32,
+}
+
+impl SmallBlakeHasher {
+    #[must_use = "SECURITY WARNING: Ignoring a Result can have real security implications."]
+    /// Return a digest selected by the given Blake2b variant.
+    pub fn digest(&self, data: &[u8]) -> Result<blake2b::Digest, UnknownCryptoError> {
+        let size: usize = match *self {
+            SmallBlakeHasher::Blake2b24 => 24,
+            SmallBlakeHasher::Blake2b32 => 32,
+        };
+
+        let mut state = blake2b::Blake2b::new(size)?;
+        state.update(data)?;
+        state.finalize()
+    }
+
+    #[must_use = "SECURITY WARNING: Ignoring a Result can have real security implications."]
+    /// Return a `Blake2b` state selected by the given Blake2b variant.
+    pub fn init(&self) -> Result<blake2b::Blake2b, UnknownCryptoError> {
+        match *self {
+            SmallBlakeHasher::Blake2b24 => blake2b::Blake2b::new(24),
+            SmallBlakeHasher::Blake2b32 => blake2b::Blake2b::new(32),
+        }
+    }
+}
 
 use super::emoji;
 
@@ -182,24 +213,14 @@ pub fn seal_with_key_emoji(
     Ok(message)
 }
 
-pub fn mask_with_view_key_emoji(
-    emoji_encoded_secret: &str,
-    emoji_encoded_nonce: &str,
-    plaintext_bytes: &[u8],
-) -> Result<String, UnknownCryptoError> {
-    let bytes = mask_with_view_key(emoji_encoded_secret, emoji_encoded_nonce, plaintext_bytes)?;
-    let message = emoji::encode(&bytes);
-    Ok(message)
-}
-
-pub fn mask_with_view_key(
-    emoji_encoded_secret: &str,
-    emoji_encoded_nonce: &str,
+pub fn seal_hazardous(
+    secret_bytes: &Vec<u8>,
+    nonce_bytes: &Vec<u8>,
     plaintext_bytes: &[u8],
 ) -> Result<Vec<u8>, UnknownCryptoError> {
     /*
 
-        because this re-uses a nonce it is no longer "encrypted"
+        do not re-use the same nonce on different plaintext bytes
 
         a very clever attacker can intercept these masked messages and reverse engineer their way to the plaintext
         the basic security relies on the fact the nonce will a number which is only used once
@@ -208,9 +229,6 @@ pub fn mask_with_view_key(
         - WARNING: if the same nonce is used to decrypt two values then the values can be used to decrypt one another!
 
     */
-
-    let secret_bytes = emoji::decode(emoji_encoded_secret);
-    let nonce_bytes = emoji::decode(emoji_encoded_nonce);
 
     let _key = SecretKey::from_slice(&secret_bytes)?;
 
@@ -326,42 +344,35 @@ impl SharedKeyring {
     }
 }
 
-pub struct EmojiEncryptedIndexed {
+pub struct DeterministicEmojiEncrypt {
     pub encrypted: String,
-    pub hash: String,
 }
 
-pub fn get_masked_hash(
-    emoji_encoded_secret: &str,
-    emoji_encoded_nonce: &str,
-    plaintext_bytes: &[u8],
-) -> Result<String, UnknownCryptoError> {
-    let hashcode = Hasher::Blake2b512.digest(plaintext_bytes)?;
+impl DeterministicEmojiEncrypt {
+    fn get_hash_nonce(
+        salt_bytes: &Vec<u8>,
+        plaintext_bytes: &[u8],
+    ) -> Result<Vec<u8>, UnknownCryptoError> {
+        // todo: we should salt the plaintext bytes so this hash is a little harder to get to
+        let hashcode = SmallBlakeHasher::Blake2b24.digest(plaintext_bytes)?;
+        let nonce_bytes = &hashcode.as_ref();
+        Ok(nonce_bytes.to_vec())
+    }
 
-    let masked_hash = mask_with_view_key_emoji(
-        emoji_encoded_secret,
-        emoji_encoded_nonce,
-        &hashcode.as_ref(),
-    )?;
-
-    Ok(masked_hash)
-}
-
-impl EmojiEncryptedIndexed {
     pub fn new(
         emoji_encoded_secret: &str,
-        emoji_encoded_nonce: &str,
+        emoji_encoded_salt: &str,
         plaintext_bytes: &[u8],
-    ) -> Result<EmojiEncryptedIndexed, UnknownCryptoError> {
-        let masked_hash =
-            get_masked_hash(emoji_encoded_secret, emoji_encoded_nonce, plaintext_bytes)?;
+    ) -> Result<DeterministicEmojiEncrypt, UnknownCryptoError> {
+        let secret_bytes = emoji::decode(emoji_encoded_secret);
+        let salt_bytes = emoji::decode(emoji_encoded_salt);
+        let nonce_bytes = Self::get_hash_nonce(&salt_bytes, plaintext_bytes)?;
 
-        let encrypted = seal_with_key_emoji(emoji_encoded_secret, plaintext_bytes)?;
+        let encrypted = seal_hazardous(&secret_bytes, &nonce_bytes, plaintext_bytes)?;
 
-        let i = EmojiEncryptedIndexed {
-            encrypted: encrypted,
-            hash: masked_hash,
-        };
+        let encoded = emoji::encode(&encrypted);
+
+        let i = DeterministicEmojiEncrypt { encrypted: encoded };
 
         Ok(i)
     }

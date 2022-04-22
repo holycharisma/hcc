@@ -28,14 +28,18 @@ pub fn get_tabs() -> [Tab; 3] {
         Tab {
             name: "media".to_string(),
             html: html! {
-              <div>{" media.. "}</div>
+                 <div key="media">
+                    <div id="media-top-hx-target"
+                         hx-get="/media"
+                         hx-trigger="load" />
+                 </div>
             },
-            htmx: false,
+            htmx: true,
         },
         Tab {
             name: "hcc".to_string(),
             html: html! {
-                <div>
+                <div key="hcc">
                     <div id="hcc-top-hx-target"
                          hx-get="/handshake"
                          hx-trigger="load" />
@@ -46,7 +50,7 @@ pub fn get_tabs() -> [Tab; 3] {
         Tab {
             name: "about".to_string(),
             html: html! {
-            <div>
+            <div key="about">
               <h1>{ "👋" }</h1>
               <p>{"nice to see you..." }</p>
             </div>

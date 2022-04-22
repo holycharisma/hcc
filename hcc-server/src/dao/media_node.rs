@@ -1,30 +1,32 @@
-use crate::util::encryption;
-use crate::wiring::ServerWiring;
-use domain::server_config::ServerConfig;
+// use crate::util::encryption;
+// use crate::wiring::ServerWiring;
+// use domain::server_config::ServerConfig;
 
-use domain::sea_orm::entities::prelude::UserEmailPassword;
+use domain::sea_orm::entities::prelude::MediaNode;
 use domain::sea_orm::entities::user_email_password;
 
 use sea_orm::*;
 
-pub struct UserDao {}
+pub struct MediaNodeDao {}
 
-impl UserDao {
+impl MediaNodeDao {
+    /*
+
     pub async fn find_by_email(
         wiring: &ServerWiring,
         email_plaintext_bytes: &[u8],
     ) -> Result<Option<user_email_password::Model>, ()> {
-        let email = encryption::DeterministicEmojiEncrypt::new(
+        let hash = encryption::get_masked_hash(
             &wiring.config.encryption_key_emoji,
             &wiring.config.encryption_salt_emoji,
             email_plaintext_bytes,
         )
         .unwrap();
 
-        let matches_email = user_email_password::Column::Email.eq(email.encrypted);
+        let matches_hash = user_email_password::Column::EmailHash.eq(hash);
 
         let res = UserEmailPassword::find()
-            .filter(matches_email)
+            .filter(matches_hash)
             .limit(1)
             .one(&wiring.db)
             .await;
@@ -55,7 +57,7 @@ impl UserDao {
             .unwrap();
 
             let encrypted_email = String::from(em.encrypted.clone());
-            let email_hash = String::from(em.encrypted.clone());
+            let email_hash = String::from(em.hash.clone());
             let encoded_hash = String::from(config.super_user_pwhash_emoji.clone());
 
             let s = user_email_password::ActiveModel {
@@ -81,4 +83,6 @@ impl UserDao {
 
         Ok(())
     }
+
+    */
 }

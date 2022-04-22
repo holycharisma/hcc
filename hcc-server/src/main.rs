@@ -53,9 +53,10 @@ async fn main() -> tide::Result<()> {
         .post(routes::user::login::post);
 
     app.at("/signup")
-    .get(routes::user::signup::get)
-    .post(routes::user::signup::post);
+        .get(routes::user::signup::get)
+        .post(routes::user::signup::post);
 
+    app.at("/media").get(routes::media::list::get);
 
     app.at("/app").get(routes::app::get);
 
