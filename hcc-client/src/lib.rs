@@ -3,6 +3,7 @@
 mod app;
 mod emoji;
 mod encryption;
+mod hooks;
 mod htmx;
 mod media_renderer;
 

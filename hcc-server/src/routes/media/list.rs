@@ -123,20 +123,20 @@ struct MediaTemplateContext {
     media: String,
 }
 
-fn render_bundle(e: &MediaNodeBundle) -> MediaNodeHtml {
+fn render_bundle(bundle: &MediaNodeBundle) -> MediaNodeHtml {
     let mut tt = TinyTemplate::new();
 
-    tt.add_template(&e.slug, &e.template)
+    tt.add_template(&bundle.slug, &bundle.template)
         .expect("hope I can add this template!");
 
     tt.set_default_formatter(&tinytemplate::format_unescaped);
 
-    let media_json = e.renderer.render_json();
+    let media_json = bundle.renderer.render_json();
     let media_json_base64 = base64::encode(media_json);
 
     let media_context = MediaNodeViewModel {
-        slug: e.slug.to_owned(),
-        medium: e.media_type.to_string().to_ascii_lowercase(),
+        slug: bundle.slug.to_owned(),
+        medium: bundle.media_type.to_string().to_ascii_lowercase(),
         media: media_json_base64,
     };
 
@@ -148,7 +148,7 @@ fn render_bundle(e: &MediaNodeBundle) -> MediaNodeHtml {
 
     MediaNodeHtml {
         innerHTML: tt
-            .render(&e.slug, &context)
+            .render(&bundle.slug, &context)
             .expect("error in rendering custom media template!"),
     }
 }
@@ -175,7 +175,7 @@ pub async fn get(req: Request<ServerWiring>) -> Result {
 "#;
 
     let rendered_media: Vec<MediaNodeHtml> = {
-        let items: Vec<MediaNodeBundle> = vec![
+        let items = vec![
             MediaNodeBundle::img("/img-example", default_node_template.clone(), img_node),
             MediaNodeBundle::audio("/mp3-example", default_node_template.clone(), audio_node),
             MediaNodeBundle::text("/txt-example", default_node_template.clone(), text_node),

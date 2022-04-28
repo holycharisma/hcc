@@ -1,21 +1,20 @@
 use wasm_bindgen::prelude::*;
 
-use yew_hooks::{use_effect_update, use_mount};
-
 use yew::prelude::*;
 
+use crate::hooks::{use_effect_update, use_mount};
+
 #[wasm_bindgen]
-extern "C" { 
+extern "C" {
     #[wasm_bindgen(js_namespace=htmx)]
-    pub fn process(el: &web_sys::Element); 
+    pub fn process(el: &web_sys::Element);
 
     #[wasm_bindgen(js_namespace=htmx)]
-    pub fn remove(el: web_sys::Element); 
+    pub fn remove(el: web_sys::Element);
 
     #[wasm_bindgen(js_namespace=htmx)]
-    pub fn find(selector: &str) -> web_sys::Element; 
+    pub fn find(selector: &str) -> web_sys::Element;
 }
-
 
 fn get_by_id(el_id: &str) -> web_sys::Element {
     web_sys::window()
