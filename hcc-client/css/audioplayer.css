@@ -1,0 +1,447 @@
+
+    body {
+      background: black;
+    }
+
+    h1 {
+      color: white;
+    }
+
+    #webamp-player {
+      font-family: monospace;
+      color: #CF60CF;
+      
+      /* disable some user select stuff */
+      user-select: none; /* supported by Chrome and Opera */
+     -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Firefox */
+     -ms-user-select: none; /* Internet Explorer/Edge */      
+    }
+
+    #webamp-main-window {
+      width: 275px;
+      height: 116px;
+      margin: 0;
+      padding: 0;
+      background-image: url('sprites-basic.png');
+      background-position: -1px -319px;
+    }
+    #webamp-main-window > div {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      width: 275px;
+    }
+    #webamp-main-top {
+      height: 13px;
+      background-image: url('sprites-basic.png');
+      background-position: -445px -382px;
+    }
+    #webamp-main-info {
+      position: relative;
+      height: 57px;
+    }
+    #webamp-main-info-now-playing-left {
+      position: absolute;
+      height: 20px;
+      width: 82px;
+      top: 9px;
+      left: 21px;
+    }
+    #webamp-main-info-now-playing-indicator {
+      position: absolute;
+      height: 12px;
+      width: 12px;
+      top: 0;
+      left: 0;
+    }
+    #webamp-main-info-now-playing-digits {
+      position: absolute;
+      height: 20px;
+      width: 70px;
+      top: 0;
+      right: 0;
+      line-height: 20px;
+    }
+    #webamp-main-info-now-playing-digits span {
+      font-size: 14px;
+      float: left;
+      padding: 0 2px;
+    }
+    #webamp-main-info-now-playing-minutes {
+      height: 20px;
+      width: 38px;
+      float: left;    
+    }
+    #webamp-main-info-now-playing-minutes span {
+      float: right;
+    }
+    #webamp-main-info-now-playing-seconds {
+      height: 20px;
+      width: 26px;
+      float: left;    
+      margin-left: 6px;
+    }
+    #webamp-main-info-now-playing-right {
+      position: absolute;
+      height: 28px;
+      width: 156px;
+      top: 9px;
+      right: 10px;
+    }
+    #webamp-main-info-now-playing-title-marquee {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 16px;
+    }
+    #webamp-main-info-now-playing-kbps {
+      font-size: 7px;
+      font-weight: bold;
+      line-height: 14px;
+      margin-left: 4px;      
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 19px;
+      height: 12px;
+    }
+    #webamp-main-info-now-playing-khz {
+      position: absolute;
+      bottom: 0;
+      left: 42px;
+      width: 18px;
+      height: 12px;
+      font-size: 7px;
+      font-weight: bold;
+      line-height: 14px;
+      margin-left: 6px;  
+    }
+
+    #webamp-main-info-overlay {
+      position: absolute;
+      width: 95px;
+      height: 15px;
+      background-color: #dedede;
+      top: 42px;
+      right: 8px;      
+    }
+    #webamp-main-info-volume {
+      position: absolute;
+      width: 82px;
+      height: 15px;
+      bottom: 0px;
+      right: 86px;      
+    }
+    #webamp-main-info-volume-position:active {
+      background-image: url('sprites-basic.png');
+      background-position: -348px 50px;
+    }
+    #webamp-main-info-volume-position {
+      height: 11px;
+      width: 14px;
+      margin-top: 2px;
+      margin-left: 49%;
+      background-image: url('sprites-basic.png');
+      background-position: -363px 50px;
+    }
+    #webamp-main-controls-overlay {
+      position: absolute;
+      width: 112px;
+      height: 19px;
+      background-color: #dedede;
+      bottom: 3px;
+      right: 29px;      
+    }
+    #webamp-main-controls-info {
+      position: absolute;
+      width: 20px;
+      height: 18px;
+      bottom: 2px;
+      right: 8px;
+    }
+    #webamp-main-seek {
+      height: 14px;
+    }
+    #webamp-main-seek-playhead:active {
+      background-image: url('sprites-basic.png');
+      background-position: -417px 37px;
+    }
+    #webamp-main-seek-playhead {
+      height: 11px;
+      width: 29px;
+      margin-left: 49%;
+      background-image: url('sprites-basic.png');
+      background-position: -387px 37px;
+    }
+    #webamp-main-controls {
+      height: 25px;
+      position: relative;
+    }
+    #webamp-playlist-window {
+      position: relative;
+      top: 5px;
+      width: 275px;
+      margin: 0;
+      padding: 0;
+    }
+    #webamp-playlist-top > div {
+      display: inline-block;
+      float: left;
+      margin: 0;
+      padding: 0;
+      height: 20px;
+    }
+    #webamp-playlist-top-left {
+      width: 24px;
+      background-image: url('sprites-basic.png');
+      background-position: -448px 0px;
+    }
+    #webamp-playlist-top-title {
+      width: 96px;
+      background-image: url('sprites-basic.png');
+      background-position: -475px 0px;
+    }
+    .webamp-playlist-spacer {
+      width: 22px;
+      background-image: url('sprites-basic.png');
+      background-position: -576px 0px;
+    }
+    #webamp-playlist-top-right {
+      width: 23px;
+      background-image: url('sprites-basic.png');
+      background-position: -603px 0px;
+    }
+    #webamp-playlist-middle > div {
+      display: inline-block;
+      float: left;
+      margin: 0;
+      padding: 0;
+      height: 70px;
+    }
+    #webamp-playlist-middle-left {
+      width: 12px;
+      height: 70px;
+      background-image: url('sprites-basic.png');
+      background-position: -448px -44px;
+    }
+    #webamp-playlist-middle-left > .repeat-y {
+      background-image: url('sprites-basic.png');
+      background-position: -448px -74px;
+      width: 12px;
+      height: 30px;
+    }
+    #webamp-playlist-middle-center {
+      width: 243px;
+    }
+    #webamp-playlist-middle-right {
+      position: relative;
+      width: 20px;
+    }
+    #webamp-playlist-middle-right > .repeat-y {
+      background-image: url('sprites-basic.png');
+      background-position: -479px -44px;
+      width: 20px;
+      height: 26px;
+    }
+    #webamp-playlist-middle-scroll:active {
+      background-image: url('sprites-basic.png');
+      background-position: 267px -54px;    
+    }
+    #webamp-playlist-middle-scroll {
+      position: absolute;
+      background-image: url('sprites-basic.png');
+      background-position: 276px -54px;    
+      top: 0;
+      left: 5px;
+      height: 18px;
+      width: 8px;
+    }
+    #webamp-playlist-middle-contents {
+      position: relative;
+      background-color: black;
+      top: 0px;
+      left: -3px;
+      height: 85px;
+      width: 248px;
+      z-index: 9;
+    }
+    #webamp-playlist-middle-contents span.num::after {
+      content: ". ";
+    }
+    #webamp-playlist-middle-contents ol {
+      color: #CF60CF;
+      margin: 0;
+      padding: 5px;
+      line-height: 10px;
+      font-size: 7px;
+      list-style-type: none;
+    }
+    #webamp-playlist-middle-contents ol > li {
+      margin: 2px 0;
+      padding: 1px;
+    }
+    #webamp-playlist-middle-contents ol > li.active {
+      color: #902F90;
+    }
+    #webamp-playlist-middle-contents ol > li span.duration {
+      float: right;
+    }
+    #webamp-playlist-middle-contents ol > li span.title {
+      display: inline-block;
+      width: 190px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: clip;    
+    }
+    #webamp-playlist-middle-contents ol > li.selected {
+      background-color: #40003F;
+    }
+    #webamp-playlist-middle-contents ol > li:active {
+      background-color: #40003F;
+    }
+    #webamp-playlist-bottom {
+      position: relative;
+    }
+    #webamp-playlist-bottom > div {
+      display: inline-block;
+      float: left;
+      margin: 0;
+      padding: 0;
+      height: 36px;
+    }
+    #webamp-playlist-bottom-overlay {
+      position: absolute;
+      width: 247px;
+      background-color: #dedede;
+      top: 96px;
+      height: 25px;
+      left: 8px;    
+    }
+    #webamp-playlist-bottom-left {
+      width: 123px;
+      background-image: url('sprites-basic.png');
+      background-position: -448px -74px;    
+    }
+    #webamp-playlist-bottom-center {
+      width: 4px;
+      background-image: url('sprites-basic.png');
+      background-position: -575px -74px;    
+    }
+    #webamp-playlist-bottom-right {
+      width: 148px;
+      background-image: url('sprites-basic.png');
+      background-position: -576px -74px;    
+    }
+    #webamp-player {
+      width: 275px;
+    }
+    #webamp-player hr {
+      margin: 7px 10px;
+    }
+    #webamp-main-controls-actions {
+      position: absolute;
+      left: 14px;
+      top: 0;
+      margin-top: 3px;
+      margin-left: 1px;
+      height: 0px;
+      width: 120px;
+      background-color: #dedede;
+    }
+    #webamp-main-controls-actions > div {
+      width: 22px;
+      height: 18px;
+      margin: 0;
+      margin-left: 1px;
+      padding: 0;
+      display: inline-block;
+      float: left;
+    }
+    #webamp-main-controls-action-back {
+      background-image: url('sprites-basic.png');
+      background-position: -1px 37px;
+    }
+    #webamp-main-controls-action-back:active {
+      background-image: url('sprites-basic.png');
+      background-position: -1px 19px;
+    }
+    #webamp-main-controls-action-play {
+      background-image: url('sprites-basic.png');
+      background-position: -24px 37px;
+    }
+    #webamp-main-controls-action-play:active {
+      background-image: url('sprites-basic.png');
+      background-position: -24px 19px;
+    }
+    #webamp-main-controls-action-pause {
+      background-image: url('sprites-basic.png');
+      background-position: -47px 37px;
+    }
+    #webamp-main-controls-action-pause:active {
+      background-image: url('sprites-basic.png');
+      background-position: -47px 19px;
+    }
+    #webamp-main-controls-action-stop {
+      background-image: url('sprites-basic.png');
+      background-position: -70px 37px;
+    }
+    #webamp-main-controls-action-stop:active {
+      background-image: url('sprites-basic.png');
+      background-position: -70px 19px;
+    }
+    #webamp-main-controls-action-forward {
+      background-image: url('sprites-basic.png');
+      background-position: -93px 37px;
+    }
+    #webamp-main-controls-action-forward:active {
+      background-image: url('sprites-basic.png');
+      background-position: -93px 19px;
+    }
+    
+    
+.marquee {
+  display: inline-block;
+  height: 25px;
+  width: 100%;
+  font-size: 8px;
+  margin-top: 3px;
+
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee div {
+  width: 200%;
+  height: 30px;
+
+  position: absolute;
+  white-space: nowrap;
+
+  animation: marquee 25s linear infinite;
+}
+
+.marquee span {
+  display: inline;
+  padding: 0 4px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+@keyframes marquee {
+  0% { left: 0; }
+  100% { left: -500%; } /* 100% for every copy of the span */ 
+}
+
+.marquee.paused div {
+  -webkit-animation-play-state: paused; /* Safari 4.0 - 8.0 */
+    animation-play-state: paused;
+}    
+
+.marquee:hover div {
+  -webkit-animation-play-state: paused; /* Safari 4.0 - 8.0 */
+    animation-play-state: paused;
+}    

@@ -1,6 +1,7 @@
 use crate::hooks::use_window_scroll;
 use crate::htmx::HtmxProcessedComponent;
 
+use super::audioplayer::AudioPlayer;
 use super::state::ActiveTab;
 use super::tabs::{get_tabs, Tab};
 
@@ -65,7 +66,7 @@ pub fn io_helper() -> Html {
     let maybe_cast = splash_ref.cast::<web_sys::HtmlHeadElement>();
 
     let splash_height: i32 = if maybe_cast.is_some() {
-        maybe_cast.unwrap().scroll_height()
+        maybe_cast.unwrap().scroll_height()  - 64 // header is 64 px
     } else {
         0
     };
@@ -82,7 +83,7 @@ pub fn io_helper() -> Html {
         )
     };
 
-    log!("setting header opacity to: ", header_opacity.clone());
+    // log!("setting header opacity to: ", header_opacity.clone());
 
     let xClass = format!("x-{}", x);
     let yClass = format!("y-{}", y);
@@ -93,7 +94,7 @@ pub fn io_helper() -> Html {
     );
 
     let header_inner_styles = format!(
-        "fixed top-0 z-10 w-full border-b-2 border-dotted bg-lime-50 p-4 transition-opacity {} {}",
+        "fixed top-0 h-16 z-10 w-full border-b-2 border-dotted bg-lime-50 p-4 transition-opacity {} {}",
         header_opacity, debugClass,
     );
 
@@ -104,45 +105,61 @@ pub fn io_helper() -> Html {
 
     let title = String::from("hcc (c) 2022 to infinity");
     html! {
-     <div class="page">
+    <div class="page scroll-smooth">
+
       <div class={header_inner_styles}>
-        <div class="header-logo float-left">
-          <h1 class="text-xl"><img src="https://robohash.org/logo-here" height="40" width="40" /></h1>
-        </div>
-        <div class="header-items float-right">
-          <button class="rounded-lg bg-lime-300 p-2">{"&nbsp;=&nbsp;"}</button>
-        </div>
-        <p class="clear-right"></p>
+          <div class="header-logo float-left">
+              <h1 class="text-xl"><img src="https://robohash.org/logo-here" height="40" width="40" /></h1>
+          </div>
+          <div class="header-items float-right">
+              <button class="rounded-lg bg-lime-300 p-2">{"&nbsp;=&nbsp;"}</button>
+          </div>
+          <p class="clear-right"></p>
       </div>
-
+  
       <div class="content-wrapper relative">
-        <div ref={splash_ref} class={splash_inner_styles}>
-          <img src="https://robohash.org/splash-img-here" height="600" width="600" class="m-2 mx-auto border-8" />
-          <h1>{"I am the splash thingy"}</h1>
-          <p class="clear-both" />
-        </div>
-        <div class="content-section min-h-screen flex pb-6">
-          <div class="content flex-1 border-2 border-dotted">
-            <div class="content-node m-2 inline-block h-72 w-32 bg-red-100">{"hello I am content in the content zone hello world"}</div>
-            <div class="content-node m-2 inline-block h-36 bg-blue-100">{"hello I am content in the content zone"}</div>
-            <div class="content-node m-2 inline-block h-72 w-24 bg-green-100">{"hello I am content in the content zone"}</div>
-            <div class="content-node m-2 inline-block h-72 bg-purple-100">{"hello I am content in the content zone"}</div>
-            <div class="content-node m-2 inline-block h-72 bg-orange-100">{"hello I am content in the content zone"}</div>
-          </div>
-          <div class="sidebar border-2 border-red-300 text-center">
-            <div class="sidebar-header bg-gray-100">{"I am the sidebar zone"}</div>
-            <div class="sidebar-extra mb-12 bg-gray-100 p-2">
-              <img width="250" height="250" src="https://robohash.org/sidebar-player" />
-              <p class="clear-both">{"a little extra stuff inside the sidebar..."}</p>
-            </div>
-          </div>
-        </div>
-        <div class="footer absolute w-full bg-blue-50 p-2 bottom-4 z-10 mt-2 border-t-4 border-dotted pt-2 text-center">
-          <h1>{title}</h1>
-        </div>
-      </div>
-    </div>
 
+            <div ref={splash_ref} class={splash_inner_styles}>
+                <img src="https://robohash.org/splash-img-here" height="200px" width="600px" class="m-2 mx-auto w-96 h-48" />
+                <h1>{"I am the splash thingy"}</h1>
+                <p class="clear-both" />
+            </div>
+  
+            <div class="main-content-container">
+                  <div class="main-content min-h-screen flex pb-6">
+
+                      <div class="content -items flex-1 ">
+                          <div class="content-node m-2 inline-block h-72 w-32 bg-red-100">{"hello I am content in the content zone hello world"}</div>
+                          <div class="content-node m-2 inline-block h-36 bg-blue-100">{"hello I am content in the content zone"}</div>
+                          <div class="content-node m-2 inline-block h-72 w-24 bg-green-100">{"hello I am content in the content zone"}</div>
+                          <div class="content-node m-2 inline-block h-72 bg-purple-100">{"hello I am content in the content zone"}</div>
+                          <div class="content-node m-2 inline-block h-72 bg-orange-100">{"hello I am content in the content zone"}</div>
+                      </div>
+
+                      <div class="sidebar text-center">
+                        <div class="sticky top-16">
+
+                          <div class="sidebar-main">
+                              <AudioPlayer />
+                          </div>
+                   
+                          <div class="sidebar-extra mb-12 p-2">
+                              <img width="250" height="250" src="https://robohash.org/sidebar-player" />
+                              <p class="clear-both">{"a little extra stuff inside the sidebar..."}</p>
+                          </div>
+                      </div>
+
+                      </div>
+                 </div>
+
+                <div class="footer absolute w-full p-2 bottom-4 z-10 mt-2 pt-2 text-center">
+                  <span class="bg-white">{title}</span>
+                </div>
+              </div>
+
+      </div>
+
+  </div>  
     }
 }
 
