@@ -1,8 +1,9 @@
 use std::fmt;
 
-use bounce::*;
-
 use yew::prelude::*;
+
+/*
+use bounce::*;
 
 #[derive(Clone, PartialEq, Atom)]
 pub struct Tab {
@@ -59,3 +60,5 @@ pub fn get_tabs() -> [Tab; 3] {
         },
     ]
 }
+
+*/

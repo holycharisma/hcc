@@ -1,11 +1,7 @@
 use crate::hooks::use_window_scroll;
 use crate::htmx::HtmxProcessedComponent;
 
-use super::state::ActiveTab;
-use super::tabs::{get_tabs, Tab};
-
-use bounce::*;
-use gloo_console::log;
+// use gloo_console::log;
 
 use yew::prelude::*;
 

@@ -14,9 +14,10 @@
     "@tailwindcss/forms": "^0.4.0",
     "@wasm-tool/wasm-pack-plugin": "^1.1.0",
     "babel-loader": "^8.2.3",
-    "copy-webpack-plugin": "^5.0.3",
+    "copy-webpack-plugin": "^10.2.4",
     "css-loader": "^6.6.0",
     "htmx.org": "^1.7.0",
+    "howler": "^2.2.3",
     "postcss": "^8.4.6",
     "postcss-loader": "^6.2.1",
     "postcss-preset-env": "^7.4.1",
@@ -25,7 +26,7 @@
     "tailwindcss": "^3.0.23",
     "webpack": "^5.69.1",
     "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^3.11.3"
+    "webpack-dev-server": "^4.8.1"
   },
   "dependencies": {
   }

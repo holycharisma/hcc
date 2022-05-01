@@ -39,7 +39,14 @@ module.exports = {
     contentBase: dist,
   },
   plugins: [
-    new CopyPlugin([path.resolve(__dirname, "assets")]),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, "assets"),
+          to: dist
+        }
+      ]
+    }),
 
     new WasmPackPlugin({
       crateDirectory: __dirname,

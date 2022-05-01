@@ -2,6 +2,8 @@ import("../css/app.css");
 
 import("./encryption.js");
 
+import("./audioplayer.js");
+
 try {
     import("../pkg/index.js").then((x => {
         // global exports for JS interop here:

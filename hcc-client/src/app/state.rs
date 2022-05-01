@@ -1,5 +1,6 @@
 use std::fmt;
 
+/*
 use super::tabs::get_tabs;
 
 use bounce::*;
@@ -28,3 +29,4 @@ impl fmt::Display for ActiveTab {
         write!(f, "{}", self.name)
     }
 }
+*/
