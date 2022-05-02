@@ -87,17 +87,9 @@ pub fn io_helper() -> Html {
 
     // log!("setting header opacity to: ", header_opacity.clone());
 
-    let xClass = format!("x-{}", x);
-    let yClass = format!("y-{}", y);
-
-    let debugClass = format!(
-        "{}-{}-vs-{}-makes-{}",
-        xClass, yClass, splash_height, scroll_depth
-    );
-
     let header_inner_styles = format!(
-        "fixed top-0 h-16 z-10 w-full border-b-2 border-dotted bg-lime-50 p-4 transition-opacity {} {}",
-        header_opacity, debugClass,
+        "fixed top-0 h-16 z-10 w-full border-b-2 border-dotted bg-lime-50 p-4 transition-opacity {}",
+        header_opacity
     );
 
     let splash_inner_styles = format!(

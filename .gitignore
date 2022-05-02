@@ -1,2 +1,4 @@
 db/
 .env
+.secrets
+.DS_STORE
