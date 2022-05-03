@@ -11,6 +11,9 @@ extern "C" {
     pub fn subscribe(el: &web_sys::Element);
 
     #[wasm_bindgen(js_namespace=audioplayer)]
+    pub fn push(title: &str, url: &str, duration: i32, khz: i32, kbps: i32);
+
+    #[wasm_bindgen(js_namespace=audioplayer)]
     pub fn select(el: i32);
 
     #[wasm_bindgen(js_namespace=audioplayer)]

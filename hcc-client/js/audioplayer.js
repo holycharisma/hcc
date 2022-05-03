@@ -243,19 +243,16 @@ function back() {
 }
 
 
-function pushDummyTracks() {
-
+function push(title, url, duration, khz, kbps) {
   pushAudioNode({
-    title: "untitled-love-loop.wav", // dummy data here, supposed to come from server!...
-    duration: 15,
-    khz: 44,
-    kbps: 1411,
-    url: "untitled-love-loop.wav"
+    title: title,
+    duration: duration,
+    khz: khz,
+    kbps: kbps,
+    url: url
   });
-
+  
 }
-
-// pushDummyTracks();
 
 window.audioplayer = {
   subscribe: subscribe,
@@ -265,5 +262,5 @@ window.audioplayer = {
   pause: pause,
   forward: forward,
   back: back,
-  push: pushAudioNode
+  push: push
 };

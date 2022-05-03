@@ -88,7 +88,7 @@ pub fn app() -> Html {
     // log!("setting header opacity to: ", header_opacity.clone());
 
     let header_inner_styles = format!(
-        "fixed top-0 h-16 z-10 w-full border-b-2 border-dotted bg-lime-50 p-4 transition-opacity {}",
+        "fixed top-0 h-16 z-10 w-full bg-black text-white p-4 transition-opacity {}",
         header_opacity
     );
 
@@ -159,7 +159,7 @@ pub fn app() -> Html {
                                 <AudioPlayer />
                             </div>
 
-                            <div class="sidebar-extra mb-12 p-2">
+                            <div class="sidebar-extra mb-12 p-2 relative top-4">
                                 {sidebar_element}
                             </div>
                         </div>

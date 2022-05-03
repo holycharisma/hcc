@@ -54,8 +54,10 @@ impl MediaRenderer for TextMedia {
 #[derive(Serialize, Deserialize)]
 struct AudioMedia {
     title: String,
-    mp3_url: String,
-    img_url: String,
+    duration: i32,
+    khz: i32,
+    kbps: i32,
+    url: String,
 }
 
 impl MediaRenderer for AudioMedia {
@@ -153,36 +155,44 @@ fn render_bundle(bundle: &MediaNodeBundle) -> MediaNodeHtml {
     }
 }
 
-pub async fn get(req: Request<ServerWiring>) -> Result {
-    let text_node = TextMedia {
-        body: String::from("This is a blog post"),
-    };
+struct FakeMediaDatabase {}
 
-    let img_node = ImageMedia {
-        url: String::from("url"),
-    };
-
-    let audio_node = AudioMedia {
-        title: String::from("title"),
-        mp3_url: String::from("mp3_url"),
-        img_url: String::from("img_url"),
-    };
-
-    let default_node_template = r#"
-<div class="pt-10 tinytemplate-node-wrapper-example">
-    {media}
-</div>
-"#;
-
-    let rendered_media: Vec<MediaNodeHtml> = {
+impl FakeMediaDatabase {
+    pub fn get_media() -> Vec<MediaNodeHtml> {
         let items = vec![
-            MediaNodeBundle::img("/img-example", default_node_template.clone(), img_node),
-            MediaNodeBundle::audio("/mp3-example", default_node_template.clone(), audio_node),
-            MediaNodeBundle::text("/txt-example", default_node_template.clone(), text_node),
+            MediaNodeBundle::img(
+                "/img-example",
+                r#"<div class="pt-10 tinytemplate-node-wrapper-example">{media}</div>"#,
+                ImageMedia {
+                    url: String::from("url"),
+                },
+            ),
+            MediaNodeBundle::audio(
+                "/mp3-example",
+                r#"<div class="pt-10 tinytemplate-node-wrapper-example">{media}</div>"#,
+                AudioMedia {
+                    title: String::from("title"),
+                    url: String::from("mp3_url"),
+                    duration: 420,
+                    khz: 44,
+                    kbps: 192,
+                },
+            ),
+            MediaNodeBundle::text(
+                "/txt-example",
+                r#"<div class="pt-10 tinytemplate-node-wrapper-example">{media}</div>"#,
+                TextMedia {
+                    body: String::from("This is a blog post"),
+                },
+            ),
         ];
 
         items.iter().map(|e| render_bundle(e)).collect()
-    };
+    }
+}
+
+pub async fn get(req: Request<ServerWiring>) -> Result {
+    let rendered_media: Vec<MediaNodeHtml> = FakeMediaDatabase::get_media();
 
     let view_context = ListGetViewModel {
         media: rendered_media,

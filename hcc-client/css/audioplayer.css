@@ -409,12 +409,8 @@
       margin: 0;
       padding: 5px;
       line-height: 10px;
-      font-size: 7px;
+      font-size: 10px;
       list-style-type: none;
-    }
-    #webamp-playlist-middle-contents li {
-      margin: 2px 0;
-      padding: 1px;
     }
     #webamp-playlist-middle-contents li.active {
       color: #902F90;

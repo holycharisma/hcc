@@ -1,17 +1,17 @@
-<div class="bg-white bg-opacity-75 p-4 rounded-sm" hx-boost="true">
+<div class="p-4 rounded-sm" hx-boost="true">
     <form class="max-w-md" hx-post="/login" hx-target="#hcc-top-hx-target">
       <div class="grid grid-cols-1 gap-6">
         <label class="block">
-          <span class="text-gray-700">Email-address</span>
+          <span class="text-white">Email</span>
           <input
             type="email"
             name="email"
             class="mt-1 block w-full form-input focus:border-violet-500"
-            placeholder="holycharisma@example.com"
+            placeholder="human@holycharisma.com"
           />
         </label>
         <label class="block">
-          <span class="text-gray-700">Password</span>
+          <span class="text-white">Password</span>
           <input
             name="password"
             type="password"
@@ -27,5 +27,5 @@
         </label>
       </div>
     </form>
-    <p>No account? why not <a href="/signup" hx-target="#hcc-top-hx-target">sign up</a></p>
+    <p class="text-white pt-1">No account? no problem!</p>
 </div>
