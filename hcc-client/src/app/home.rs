@@ -59,8 +59,8 @@ opacity-100	opacity: 1;
 Basic usage
 */
 
-#[function_component(IntersectionObserverHelper)]
-pub fn io_helper() -> Html {
+#[function_component(App)]
+pub fn app() -> Html {
     let (x, y) = use_window_scroll();
 
     let splash_ref = use_node_ref();
@@ -97,37 +97,59 @@ pub fn io_helper() -> Html {
         splash_opacity
     );
 
-    let title = String::from("hcc (c) 2022 to infinity");
-    html! {
+    let header_element = html! {
+                    <div key="header-hx"
+                         id="header-top-hx-target"
+                         hx-get="/header"
+                         hx-trigger="load" />
+    };
+
+    let splash_element = html! {
+                    <div key="splash-hx"
+                         id="splash-top-hx-target"
+                         hx-get="/splash"
+                         hx-trigger="load" />
+    };
+
+    let media_wall = html! {
+                    <div key="media-hx"
+                         id="hcc-top-hx-target"
+                         hx-get="/media"
+                         hx-trigger="load" />
+    };
+
+    let sidebar_element = html! {
+                    <div key="sidebar-hx"
+                         id="sidebar-top-hx-target"
+                         hx-get="/sidebar"
+                         hx-trigger="load" />
+    };
+
+    let footer_element = html! {
+                    <div key="footer-hx"
+                         id="footer-top-hx-target"
+                         hx-get="/footer"
+                         hx-trigger="load" />
+    };
+
+    let body = html! {
       <div class="page scroll-smooth">
 
         <div class={header_inner_styles}>
-            <div class="header-logo float-left">
-                <h1 class="text-xl"><img src="https://robohash.org/logo-here" height="40" width="40" /></h1>
-            </div>
-            <div class="header-items float-right">
-                <button class="rounded-lg bg-lime-300 p-2">{"&nbsp;=&nbsp;"}</button>
-            </div>
-            <p class="clear-right"></p>
+            {header_element}
         </div>
 
         <div class="content-wrapper relative">
 
               <div ref={splash_ref} class={splash_inner_styles}>
-                  <img src="https://robohash.org/splash-img-here" height="200px" width="600px" class="m-2 mx-auto w-96 h-48" />
-                  <h1>{"I am the splash thingy"}</h1>
-                  <p class="clear-both" />
+                {splash_element}
               </div>
 
               <div class="main-content-container">
                     <div class="main-content min-h-screen flex pb-6">
 
-                        <div class="content -items flex-1 ">
-                            <div class="content-node m-2 inline-block h-72 w-32 bg-red-100">{"hello I am content in the content zone hello world"}</div>
-                            <div class="content-node m-2 inline-block h-36 bg-blue-100">{"hello I am content in the content zone"}</div>
-                            <div class="content-node m-2 inline-block h-72 w-24 bg-green-100">{"hello I am content in the content zone"}</div>
-                            <div class="content-node m-2 inline-block h-72 bg-purple-100">{"hello I am content in the content zone"}</div>
-                            <div class="content-node m-2 inline-block h-72 bg-orange-100">{"hello I am content in the content zone"}</div>
+                        <div class="content-items flex-1">
+                            {media_wall}
                         </div>
 
                         <div class="sidebar text-center">
@@ -138,8 +160,7 @@ pub fn io_helper() -> Html {
                             </div>
 
                             <div class="sidebar-extra mb-12 p-2">
-                                <img width="250" height="250" src="https://robohash.org/sidebar-player" />
-                                <p class="clear-both">{"a little extra stuff inside the sidebar..."}</p>
+                                {sidebar_element}
                             </div>
                         </div>
 
@@ -147,20 +168,18 @@ pub fn io_helper() -> Html {
                    </div>
 
                   <div class="footer absolute w-full p-2 bottom-4 z-10 mt-2 pt-2 text-center">
-                    <span class="bg-white">{title}</span>
+                    {footer_element}
                   </div>
                 </div>
 
         </div>
 
     </div>
-      }
-}
 
-#[function_component(App)]
-pub fn app() -> Html {
+    };
+
     html! {
-        <IntersectionObserverHelper />
+      <HtmxProcessedComponent name={"app"} body={body} process={true} />
     }
 }
 

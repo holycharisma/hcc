@@ -8,6 +8,8 @@ pub mod user;
 
 pub mod media;
 
+pub mod brand;
+
 pub mod dummy_secret;
 
 pub mod disconnect;
