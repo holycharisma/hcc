@@ -50,16 +50,13 @@ fn audio_node(props: &AudioNodeProps) -> Html {
 
 #[derive(Properties, Serialize, Deserialize, Clone, PartialEq)]
 struct ImageNodeProps {
-    url: String,
+    url: String, // todo: add alt text, etc
 }
 
 #[function_component(ImageNode)]
-fn image_node(_props: &ImageNodeProps) -> Html {
-    let title = "I am an image node!";
+fn image_node(props: &ImageNodeProps) -> Html {
     html! {
-            <div>
-                <h1>{title}</h1>
-            </div>
+        <img src={props.url.clone()} />
     }
 }
 
@@ -69,12 +66,9 @@ struct TextNodeProps {
 }
 
 #[function_component(TextNode)]
-fn text_node(_props: &TextNodeProps) -> Html {
-    let title = "I am a text node!";
+fn text_node(props: &TextNodeProps) -> Html {
     html! {
-            <div>
-                <h1>{title}</h1>
-            </div>
+        <span>{props.body.clone()}</span>
     }
 }
 

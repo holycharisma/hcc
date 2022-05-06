@@ -78,6 +78,8 @@ function select(idx) {
   if (item) {
     AudioPlayer$.selected = idx;
     fireMessage("select");
+  } else {
+    // console.log("Not firing message since no item")
   }
 
 }
@@ -109,7 +111,10 @@ function pushAudioNode(nodeMeta) {
     let idx = node.num - 1;
     if (!is_initialized()) {
       select(idx);
+    } else {
+      // console.log("skipping push-to-select since already initialized");
     }
+    fireMessage("add");
   }
   return node;
 }
@@ -127,6 +132,9 @@ function audioMessage(name) {
 }
 
 function fireEvent(data) {
+  
+  // console.log("Asked to fire event:", data);
+
   let elem = getSubscription();
 
   if (elem) {
@@ -162,6 +170,8 @@ function stop() {
     stopInternal(sound);
     AudioPlayer$.state = "stop";
     fireMessage("stop");
+  } else {
+    // console.log("not firing stop since no sound");
   }
 }
 
@@ -175,6 +185,8 @@ function play() {
     sound.howl.play();
     AudioPlayer$.state = "play";
     fireMessage("play");
+  } else {
+    // console.log("not firing play since no howl playing");
   }
 }
 
@@ -184,6 +196,8 @@ function pause() {
     sound.howl.pause();
     AudioPlayer$.state = "pause";
     fireMessage("pause");
+  } else {
+    // console.log("not firing pause since no howl playing");
   }
 }
 
@@ -204,6 +218,8 @@ function seekToStart() {
     sound.howl.seek(0);
     sound.seek = 0;
     fireMessage("seek");
+  } else {
+    // console.log("not firing seek since no howl playing");
   }
 
 }
@@ -221,6 +237,8 @@ function forward() {
     seekToStart();
     fireMessage("forward");
     handleSkip();
+  } else {
+    // console.log("not firing forward since we are at end of playlist");
   }
 
 }
@@ -238,6 +256,8 @@ function back() {
     seekToStart();
     fireMessage("back");
     handleSkip();
+  } else {
+    // console.log("not firing back since we are at beginning of playlist");
   }
 
 }

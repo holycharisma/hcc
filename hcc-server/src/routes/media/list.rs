@@ -157,32 +157,41 @@ fn render_bundle(bundle: &MediaNodeBundle) -> MediaNodeHtml {
 
 struct FakeMediaDatabase {}
 
+use uuid::Uuid;
+
 impl FakeMediaDatabase {
+    pub fn gen_slug() -> String {
+        let id = Uuid::new_v4();
+        format!("/media@{}", id.urn())
+    }
+
     pub fn get_media() -> Vec<MediaNodeHtml> {
         let items = vec![
             MediaNodeBundle::img(
-                "/img-example",
-                r#"<div class="pt-10 tinytemplate-node-wrapper-example">{media}</div>"#,
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="tiny-template-example">{media}</div>"#,
                 ImageMedia {
-                    url: String::from("url"),
+                    url: String::from("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAQhJREFUKFNFkLFug0AQRGeL2IUxKFCBy1v+/0fwF9xiGs7QQHRHHMlOsdEdsrLFaovRzNuh7tppWZY4Ho5QAGnRfpASnr9PrMsKug03XZcvMBsURREVaaJ+CwHWWlRVCXLO6emUQcSCW0Z+LpKhDx7SC5hb/DweUThqXTcIIUCkBzMDpBARsOGUMs0TaHROL3WT4sLmYa2AiGDMG0Uxz/Pu2DRNRMfmfXKKfG3CyAEizNMEcuOo9aXB5jdIb2G4BanCSo+WDc4x+n4HjaPTLMvQ9wITmfIcSorgI/P+zPdjAw3DoOuywLRR9F9PYg47c+yZrl2nn1WFw+EjFfzuWyM1EV6vF5ZlxR/Ak5UoIMERKAAAAABJRU5ErkJggg=="),
                 },
             ),
+            
+            MediaNodeBundle::text(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="tiny-template-example">{media}</div>"#,
+                TextMedia {
+                    body: String::from("text body here"),
+                },
+            ),
+
             MediaNodeBundle::audio(
-                "/mp3-example",
-                r#"<div class="pt-10 tinytemplate-node-wrapper-example">{media}</div>"#,
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"{media}"#,
                 AudioMedia {
-                    title: String::from("title"),
-                    url: String::from("mp3_url"),
-                    duration: 420,
+                    title: String::from("15 second mp3"),
+                    url: String::from("mp3"),
+                    duration: 15,
                     khz: 44,
                     kbps: 192,
-                },
-            ),
-            MediaNodeBundle::text(
-                "/txt-example",
-                r#"<div class="pt-10 tinytemplate-node-wrapper-example">{media}</div>"#,
-                TextMedia {
-                    body: String::from("This is a blog post"),
                 },
             ),
         ];

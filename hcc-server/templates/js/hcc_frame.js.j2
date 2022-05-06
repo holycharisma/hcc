@@ -1,27 +1,38 @@
 (function() {
+    
+    // set up decryption keys
 
 var origin = '{{ origin_domain  }}';
 var token = '{{ csrf_secret_token }}';
 
 var frame = document.getElementById("hcc-frame").contentWindow;
-var senderId = 0;
+var acknowledged = false;
 
 function handleAck(event) {
     if(event.origin !== origin) return;
     if (event.data === "ack-token") {
-        window.clearInterval(senderId);
+        acknowledged = true;
         window.removeEventListener('message', handleAck);
     }
 }
 
 function sendToken() {
-	frame.postMessage({token: token }, origin);
+    if (! acknowledged) {
+    	frame.postMessage({token: token }, origin);
+      requestAnimationFrame(sendToken);
+    }
 }
 
-frame.addEventListener('load', sendToken, true);
-senderId = setInterval(sendToken, 20);
-
 window.addEventListener('message', handleAck);
+frame.addEventListener('load', sendToken, true);
+
+requestAnimationFrame(sendToken);
+
+})();
+
+(function() {
+    
+    // listen for page reload events
 
 function reload(event) {
     if(event.origin !== origin) return;

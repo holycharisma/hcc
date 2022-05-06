@@ -1,7 +1,6 @@
 
 const ORIGIN = String(document.referrer).replace(/\/$/, "");
 
-let init_keyring = false;
 
 const [antiForgeryKey, encryptionKey] = ["au", "af", "ec"];
 const TOKEN_DB = {
@@ -9,12 +8,24 @@ const TOKEN_DB = {
   [encryptionKey]: undefined,
 };
 
-function recvTokenMessage(event) {
-  if (event.origin !== ORIGIN) return;
-  else if (!window.recv_claims || !window.EphemeralSharedKeyring) return;
-  else if (init_keyring) return;
+let loaded = false;
+let working = false;
 
-  init_keyring = true;
+function handleEvent(event) {
+  // console.log("handling event:", event);
+  
+  if (event.origin !== ORIGIN) {
+    // console.log("I DONT LKE YOUR ORIGIN!");
+    return;
+  } else if (!window.recv_claims || !window.EphemeralSharedKeyring) {
+    // console.log("I AM NOT READY TO RECEIVE THESE CLAIMS");
+    requestAnimationFrame(handleEvent.bind(null, event));
+    return;
+  } else if (loaded) {
+    // console.log("WORK IS COMPLETE ALREADY");
+    return;
+  }
+
 
   let claims = recv_claims(ORIGIN, event.data.token);
 
@@ -25,6 +36,25 @@ function recvTokenMessage(event) {
 
   event.source.postMessage("ack-token", event.origin);
   window.removeEventListener("message", recvTokenMessage);
+
+  loaded = true;
+  
+  
+}
+
+function recvTokenMessage(event) {
+
+  // console.log("I am receiving a message from my parent window...", event);
+  
+  if (working) {
+    // console.log("I AM ALREADY WORKING");
+    return;
+  }
+  
+  working = true
+  
+  requestAnimationFrame(handleEvent.bind(null, event));
+  
 }
 
 window.addEventListener("message", recvTokenMessage);
