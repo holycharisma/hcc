@@ -169,17 +169,78 @@ impl FakeMediaDatabase {
         let items = vec![
             MediaNodeBundle::img(
                 FakeMediaDatabase::gen_slug().as_str(),
-                r#"<div class="tiny-template-example">{media}</div>"#,
+                r#"<div class="w-96 inline-block">{media}</div>"#,
                 ImageMedia {
-                    url: String::from("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAQhJREFUKFNFkLFug0AQRGeL2IUxKFCBy1v+/0fwF9xiGs7QQHRHHMlOsdEdsrLFaovRzNuh7tppWZY4Ho5QAGnRfpASnr9PrMsKug03XZcvMBsURREVaaJ+CwHWWlRVCXLO6emUQcSCW0Z+LpKhDx7SC5hb/DweUThqXTcIIUCkBzMDpBARsOGUMs0TaHROL3WT4sLmYa2AiGDMG0Uxz/Pu2DRNRMfmfXKKfG3CyAEizNMEcuOo9aXB5jdIb2G4BanCSo+WDc4x+n4HjaPTLMvQ9wITmfIcSorgI/P+zPdjAw3DoOuywLRR9F9PYg47c+yZrl2nn1WFw+EjFfzuWyM1EV6vF5ZlxR/Ak5UoIMERKAAAAABJRU5ErkJggg=="),
+                    url: String::from("https://cocteau.fs.computerdream.club/luna_beam_fx.gif"),
                 },
             ),
             
             MediaNodeBundle::text(
                 FakeMediaDatabase::gen_slug().as_str(),
-                r#"<div class="tiny-template-example">{media}</div>"#,
+                r#"<div class="w-72 text-left align-top text-xl pl-3 inline-block">{media}</div>"#,
                 TextMedia {
-                    body: String::from("text body here"),
+                    body: String::from(
+                        r#"Two artist-musician-lovers hailing from the world of techno-babble and blackberries, Mary and Tommy Charisma formed Holy Charisma to blaze a musical trail across psychedelic landscapes."#,
+                    ),
+                },
+            ),
+
+            MediaNodeBundle::text(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div>{media}</div>"#,
+                TextMedia {
+                    body: String::from(""),
+                },
+            ),
+
+            MediaNodeBundle::img(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="inline-block">{media}</div>"#,
+                ImageMedia {
+                    url: String::from("https://cocteau.fs.computerdream.club/uwu_sun.png"),
+                },
+            ),
+
+            MediaNodeBundle::text(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="text-9xl pl-3 tracking-tighter inline-block">{media}</div>"#,
+                TextMedia {
+                    body: String::from("The goal is ananda for all."),
+                },
+            ),
+
+            MediaNodeBundle::text(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="text-left align-top text-xl pl-3">{media}</div>"#,
+                TextMedia {
+                    body: String::from("A place where dreams go to blossom - where you can plant a little seed of hope and watch it grow into a beautiful garden."),
+                },
+            ),
+
+            MediaNodeBundle::text(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="h-3">{media}</div>"#,
+                TextMedia {
+                    body: String::from(""),
+                },
+            ),
+
+
+            MediaNodeBundle::text(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="w-96 text-left align-top text-3xl pl-3 inline-block">{media}</div>"#,
+                TextMedia {
+                    body: String::from(
+                        "Through narratives carved out in grooves they get people dancing and connecting with each other - the musical ear worms inject the punk-friendly philosophy of the diggers and the dead - rolled up in an old spiritualist rag and ready to smoke."
+                    )
+                },
+            ),
+
+            MediaNodeBundle::img(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"<div class="inline-block">{media}</div>"#,
+                ImageMedia {
+                    url: String::from("https://cocteau.fs.computerdream.club/party.png"),
                 },
             ),
 
@@ -187,11 +248,46 @@ impl FakeMediaDatabase {
                 FakeMediaDatabase::gen_slug().as_str(),
                 r#"{media}"#,
                 AudioMedia {
-                    title: String::from("15 second mp3"),
-                    url: String::from("mp3"),
+                    title: String::from("metanoia"),
+                    url: String::from("https://cocteau.fs.computerdream.club/metanoia.mp3"),
+                    duration: 278,
+                    khz: 48,
+                    kbps: 192,
+                },
+            ),
+            MediaNodeBundle::audio(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"{media}"#,
+                AudioMedia {
+                    title: String::from("untitled love loop"),
+                    url: String::from(
+                        "https://cocteau.fs.computerdream.club/untitled-love-loop.mp3",
+                    ),
                     duration: 15,
                     khz: 44,
                     kbps: 192,
+                },
+            ),
+            MediaNodeBundle::audio(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"{media}"#,
+                AudioMedia {
+                    title: String::from("ready"),
+                    url: String::from("https://cocteau.fs.computerdream.club/ready.mp3"),
+                    duration: 186,
+                    khz: 44,
+                    kbps: 320,
+                },
+            ),
+            MediaNodeBundle::audio(
+                FakeMediaDatabase::gen_slug().as_str(),
+                r#"{media}"#,
+                AudioMedia {
+                    title: String::from("fly 2 infinity"),
+                    url: String::from("https://cocteau.fs.computerdream.club/fly_to_infinity.mp3"),
+                    duration: 186,
+                    khz: 44,
+                    kbps: 320,
                 },
             ),
         ];

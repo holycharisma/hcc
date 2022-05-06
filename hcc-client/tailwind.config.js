@@ -1,7 +1,13 @@
 module.exports = {
   content: [],
   theme: {
-    extend: {},
+    letterSpacing: {
+      tighter: "-0.5rem",
+      widest: "3rem"
+    },
+    extend: {
+      
+    },
   },
   plugins: [
     require('@tailwindcss/forms')({
@@ -12,6 +18,7 @@ module.exports = {
     './assets/**/*.html',
     './src/**/*.rs',
     './css/**/*.css',
-    '../hcc-server/templates/**/*.j2'
+    '../hcc-server/templates/**/*.j2',
+    '../hcc-server/src/**/*.rs'
   ],
 }

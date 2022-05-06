@@ -1,11 +1,21 @@
 <div>
-                <div class="header-logo float-left cursor-pointer" hx-get="/media" hx-trigger="click" hx-target="#hcc-top-hx-target">
-                    <h1 class="text-xl">
-                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" height="40" width="40" />
-                    </h1>
+    <style>
+        div.logo {        
+            border-radius: 2rem; 
+            background-size: 10rem; 
+            background-position: -42px, -21px; 
+            height: 4rem; 
+            width: 4rem; 
+            background-image: url('https://cocteau.fs.computerdream.club/logo.png');                    
+        }
+    </style>
+
+                <div class="header-logo cursor-pointer" hx-get="/media" hx-trigger="click" hx-target="#hcc-top-hx-target">
+                    <div class="logo"></div>
                 </div>
-                <div class="header-items float-right cursor-pointer" hx-get="/login" hx-trigger="click" hx-target="#hcc-top-hx-target">
+
+                <!-- div class="header-items float-right cursor-pointer" hx-get="/login" hx-trigger="click" hx-target="#hcc-top-hx-target">
                     <button class="rounded-lg p-2">login</button>
-                </div>
-                <p class="clear-right"></p>
+                </div --!>
+
 </div>

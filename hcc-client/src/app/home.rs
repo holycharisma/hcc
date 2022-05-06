@@ -3,41 +3,7 @@ use crate::htmx::HtmxProcessedComponent;
 
 use super::audioplayer::AudioPlayer;
 
-// use super::state::ActiveTab;
-// use super::tabs::{get_tabs, Tab};
-
-// use bounce::*;
-
-// use gloo_console::log;
-
 use yew::prelude::*;
-
-/*
-
-*/
-
-/*
-
-        <div>
-          <div id="app" class="h-screen flex flex-col pl-16 pt-10 selection:bg-violet-600 selection:text-white" >
-
-           <div id="header" class="flex mb-8">
-             <Header />
-           </div>
-
-           <div id="body" class="flex flex-row flex-grow">
-             <div id="sidebar" class="flex mr-16 text-xl">
-               <Sidebar />
-             </div>
-             <div id="content" class="flex flex-grow overflow-y-auto">
-                 <Content />
-             </div>
-           </div>
-
-          </div>
-        </div>
-
-*/
 
 /*
 
@@ -93,7 +59,7 @@ pub fn app() -> Html {
     );
 
     let splash_inner_styles = format!(
-        "splash mx-auto min-h-screen mb-2 pt-12 text-center transition-opacity {}",
+        "splash mx-auto h-screen mb-2 text-center transition-opacity {}",
         splash_opacity
     );
 
@@ -133,7 +99,7 @@ pub fn app() -> Html {
     };
 
     let body = html! {
-      <div class="page scroll-smooth">
+      <div class="page scroll-smooth text-white">
 
         <div class={header_inner_styles}>
             {header_element}
@@ -152,14 +118,14 @@ pub fn app() -> Html {
                             {media_wall}
                         </div>
 
-                        <div class="sidebar text-center">
+                        <div class="sidebar text-center mr-3">
                           <div class="sticky top-16">
 
                             <div class="sidebar-main">
                                 <AudioPlayer />
                             </div>
 
-                            <div class="sidebar-extra mb-12 p-2 relative top-4">
+                            <div class="sidebar-extra mb-12 relative top-4">
                                 {sidebar_element}
                             </div>
                         </div>
@@ -167,7 +133,7 @@ pub fn app() -> Html {
                         </div>
                    </div>
 
-                  <div class="footer absolute w-full p-2 bottom-4 z-10 mt-2 pt-2 text-center">
+                  <div class="footer w-full z-10 mt-2 pt-2 text-center">
                     {footer_element}
                   </div>
                 </div>

@@ -18,3 +18,7 @@
   @apply hover:cursor-pointer text-violet-400 underline uppercase;
 }
 
+.splash-chonky-white {
+  -webkit-text-stroke-width: 1.2rem;
+  -webkit-text-stroke-color: white;
+}
