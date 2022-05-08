@@ -1,6 +1,4 @@
-
 const ORIGIN = String(document.referrer).replace(/\/$/, "");
-
 
 const [antiForgeryKey, encryptionKey] = ["au", "af", "ec"];
 const TOKEN_DB = {
@@ -10,6 +8,17 @@ const TOKEN_DB = {
 
 let loaded = false;
 let working = false;
+
+let callbacks = [];
+
+function onLoad(cb) {
+  if (typeof cb === "function") {
+    callbacks.push(cb);
+    if (loaded) {
+      cb()
+    }
+  }
+}
 
 function handleEvent(event) {
   // console.log("handling event:", event);
@@ -26,7 +35,6 @@ function handleEvent(event) {
     return;
   }
 
-
   let claims = recv_claims(ORIGIN, event.data.token);
 
   let keyring = new EphemeralSharedKeyring(claims);
@@ -39,6 +47,9 @@ function handleEvent(event) {
 
   loaded = true;
   
+  // console.log("loaded and time to call the callbacks...");
+  
+  callbacks.forEach(cb => cb());
   
 }
 
@@ -65,5 +76,6 @@ export default {
     },
     getAntiForgeryToken: function() {
         return TOKEN_DB[antiForgeryKey];
-    }
-};
+    },
+    onEncryptionLoad: onLoad
+  };
