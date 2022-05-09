@@ -285,7 +285,7 @@ impl FakeMediaDatabase {
                 AudioMedia {
                     title: String::from("fly 2 infinity"),
                     url: String::from("https://cocteau.fs.computerdream.club/fly_to_infinity.mp3"),
-                    duration: 186,
+                    duration: 231,
                     khz: 44,
                     kbps: 320,
                 },

@@ -1,5 +1,8 @@
 const path = require("path");
+const { SubresourceIntegrityPlugin } = require("webpack-subresource-integrity");
+const WebpackAssetsManifest = require("webpack-assets-manifest");
 const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 const dist = path.resolve(__dirname, "dist");
 
@@ -13,7 +16,7 @@ module.exports = {
   },
   output: {
     path: dist,
-    filename: "[name].js"
+    filename: "[name].[contenthash].js"
   },
   experiments: {
     asyncWebAssembly: true
@@ -47,9 +50,22 @@ module.exports = {
         }
       ]
     }),
+    
+    new SubresourceIntegrityPlugin({
+          hashFuncNames: ["sha384", "sha512"],
+          enabled: true,
+        }),
+    
+    new WebpackAssetsManifest({ integrity: true }),    
 
     new WasmPackPlugin({
       crateDirectory: __dirname,
-    })
+    }),
+    
+    new HtmlWebpackPlugin({
+      filename: "frame.html",
+      title: "hcc frame",
+      hash: true
+    }),
   ]
 };
