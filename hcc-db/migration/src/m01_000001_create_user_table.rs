@@ -1,7 +1,7 @@
-use sea_schema::migration::prelude::*;
-
 use sea_orm::Statement;
-use sea_schema::migration::sea_orm::ConnectionTrait;
+
+use sea_orm_migration::prelude::*;
+use sea_orm_migration::sea_orm::ConnectionTrait;
 
 pub struct Migration;
 
@@ -12,12 +12,12 @@ impl MigrationName for Migration {
 }
 
 /*
-    async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        let sql = "CREATE TABLE `cake` ( `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `name` varchar(255) NOT NULL )";
-        let stmt = Statement::from_string(manager.get_database_backend(), sql.to_owned());
-        manager.get_connection().execute(stmt).await.map(|_| ())
-        
-        */
+async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+    let sql = "CREATE TABLE `cake` ( `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `name` varchar(255) NOT NULL )";
+    let stmt = Statement::from_string(manager.get_database_backend(), sql.to_owned());
+    manager.get_connection().execute(stmt).await.map(|_| ())
+
+    */
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
@@ -34,7 +34,6 @@ impl MigrationTrait for Migration {
 
         let stmt = Statement::from_string(manager.get_database_backend(), sql.to_owned());
         manager.get_connection().execute(stmt).await.map(|_| ())
-        
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {

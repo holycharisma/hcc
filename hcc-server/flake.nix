@@ -1,19 +1,23 @@
 {
   description = "hcc-server build flake";
 
-  inputs = {  };
+  inputs = {
+    rust-overlay = { url = "github:oxalica/rust-overlay"; };
+  };
 
-  outputs = { nixpkgs, ... }:
+  outputs = { nixpkgs, rust-overlay, ... }:
     let system = "x86_64-linux";
     in {
       devShell.${system} = let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ ];
+          overlays = [ rust-overlay.overlay ];
         };
       in (({ pkgs, ... }:
         pkgs.mkShell {
           buildInputs = with pkgs; [
+            cargo
+            cargo-watch
             pkg-config
             openssl
             openssl.bin
@@ -21,8 +25,6 @@
               
            shellHook = "
                 mkdir -p .secrets && touch .secrets/.env
-                stat .secrets/jwtRS256.key > /dev/null || ssh-keygen -t rsa -b 4096 -m PEM -f ./.secrets/jwtRS256.key
-                stat .secrets/jwtRS256.key.pub > /dev/null || openssl rsa -in jwtRS256.key -pubout -outform PEM -out ./.secrets/jwtRS256.key.pub
           ";   
 
         }) { pkgs = pkgs; });

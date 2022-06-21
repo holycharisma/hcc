@@ -1,4 +1,11 @@
 db/
+.direnv/
+target/
+.cargo-nix-local/
 .env
 .secrets
 .DS_STORE
+node_modules/
+dist/
+pkg/
+wasm-pack.log

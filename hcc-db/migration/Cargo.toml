@@ -1,19 +1,18 @@
 [package]
-name = "domain"
+name = "migration"
 version = "0.1.0"
 edition = "2021"
 publish = false
 
 [lib]
-name = "domain"
+name = "migration"
 path = "src/lib.rs"
 
 [dependencies]
-serde = { version = "1", features = ["derive"] }
-chrono = "0.4.19"
+sea-orm-migration = { version="^0.8.1" }
+async-std = { version = "1.10.0", features = ["attributes"] }
 
 [dependencies.sea-orm]
-# path = "../../../" # remove this line in your own project
 version = "^0.8.0"
 features = [
   "macros",

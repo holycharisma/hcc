@@ -73,12 +73,17 @@ async fn main() -> tide::Result<()> {
 
     // TODO: all these assets shouldn't be served by this server....
     // they should probably be through some kind of CDN or somethin
+
+    // TODO: would be nice if this was a little smarter
+    let hcc_client_dist = "./hcc-client/dist/";
+    let favicon_path = format!("{}{}", hcc_client_dist, "favicon.svg");
+
     app.at("/hcc/*")
-        .serve_dir("../hcc-client/dist/")
+        .serve_dir(hcc_client_dist)
         .expect("Failed to load frontend assets");
 
     app.at("/favicon.svg")
-        .serve_file("../hcc-client/assets/favicon.svg")
+        .serve_file(favicon_path)
         .expect("No favicon found");
 
     app.listen(&config.bind_url).await?;

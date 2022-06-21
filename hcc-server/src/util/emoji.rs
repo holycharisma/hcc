@@ -175,6 +175,14 @@ mod test {
     }
 
     #[test]
+    fn some_things_for_the_env() {
+        // TODO: would be nice to have some test stuff here to help generate the required secrets....
+        // something similar to what is happening in test_emoji_deterministic_encryption_stuff()
+
+        // we also need the bcrypt password hash of an admin password...
+    }
+
+    #[test]
     fn test_blake_stuff() {
         let emoji_str = "🚨🦕📲🦕💭🎵🏹🌊🌴🦆💝💲🍫🚶😙📞😻🤑🐸🍒📢🐷🎸💨🍊😣🤓🧡🚩🦝💡🌺🌈🍩😏💣✊🥂🧚🖕🐝🍎🥰😼🔒🤕🍪🍏👀🌴🐻🎯🐈🌾🤧🍭🦆🛒🛒💢💎🐣🔪👏🦝";
         let password = EmojiEncodedBytes::blake_hash_to_secret(emoji_str.as_bytes().to_owned());

@@ -5,20 +5,12 @@ source repository for holycharisma server
 
 ## building
 
-build binaries managed by cargo + rustup 
+build binaries managed by nix and direnv
 
 ```
-- rustup install stable
-- cargo [check|run]
+direnv allow
+cargo build --release
 ```
-
-you will need a `.env` file that looks something like:
-
-```
-tbd: look ServerWiring::init_server_wiring 
-```
-
-you will also need a postgres-like database running at the connection url
 
 ## server tech stack
 

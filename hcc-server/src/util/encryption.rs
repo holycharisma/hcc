@@ -110,10 +110,6 @@ impl UserEncryptedBase64Message {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct EncryptedKeyring {
-    b: String,
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TopSecretSharedKeyring {
@@ -121,6 +117,11 @@ struct TopSecretSharedKeyring {
     b: String,
     x: String,
     y: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EncryptedKeyring {
+    b: String,
 }
 
 impl EncryptedKeyring {
@@ -167,20 +168,6 @@ impl EncryptedKeyring {
     }
 }
 
-#[derive(Clone)]
-pub struct SharedKeyring {
-    // how do we get some sort of forward secrecy? or post-compromise security?
-    // rotate your keys, orion wants these to be single use keys...
-
-    // good security practice dictates you throw these away frequently
-    // we store them on our session and rely on browser http only cookie security
-    pub broadcast: String,
-    pub user: String,
-
-    pub broadcast_secret: String,
-    pub user_secret: String,
-}
-
 pub fn open_with_key(
     emoji_encoded_secret: &str,
     emoji_cipher_message: &str,
@@ -218,6 +205,7 @@ pub fn seal_hazardous(
     nonce_bytes: &Vec<u8>,
     plaintext_bytes: &[u8],
 ) -> Result<Vec<u8>, UnknownCryptoError> {
+
     /*
 
         do not re-use the same nonce on different plaintext bytes
@@ -260,6 +248,21 @@ pub fn seal_hazardous(
 
     Ok(dst_out)
 }
+
+#[derive(Clone)]
+pub struct SharedKeyring {
+    // how do we get some sort of forward secrecy? or post-compromise security?
+    // rotate your keys, orion wants these to be single use keys...
+
+    // good security practice dictates you throw these away frequently
+    // we store them on our session and rely on browser http only cookie security
+    pub broadcast: String,
+    pub user: String,
+
+    pub broadcast_secret: String,
+    pub user_secret: String,
+}
+
 
 impl SharedKeyring {
     pub async fn encrypt_broadcast_emoji(

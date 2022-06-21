@@ -11,3 +11,6 @@ project goals:
 - patronage infrastructure
 - cryptographic community ownership 
     - donations vs purchase
+
+project dependencies are managed using nix and direnv
+see BUILD.md

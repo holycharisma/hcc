@@ -1,4 +1,4 @@
-pub use sea_schema::migration::*;
+pub use sea_orm_migration::*;
 
 mod m01_000001_create_user_table;
 mod m01_000002_create_user_attributes_table;
