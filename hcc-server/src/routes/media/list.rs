@@ -171,7 +171,7 @@ impl FakeMediaDatabase {
                 FakeMediaDatabase::gen_slug().as_str(),
                 r#"<div class="w-96 inline-block">{media}</div>"#,
                 ImageMedia {
-                    url: String::from("https://cloud.fs.holycharisma.com/luna_beam_fx.gif"),
+                    url: String::from("https://cloud.bunny.holycharisma.com/luna_beam_fx.gif"),
                 },
             ),
             
@@ -197,7 +197,7 @@ impl FakeMediaDatabase {
                 FakeMediaDatabase::gen_slug().as_str(),
                 r#"<div class="inline-block">{media}</div>"#,
                 ImageMedia {
-                    url: String::from("https://cloud.fs.holycharisma.com/uwu_sun.png"),
+                    url: String::from("https://cloud.bunny.holycharisma.com/uwu_sun.png"),
                 },
             ),
 
@@ -240,7 +240,7 @@ impl FakeMediaDatabase {
                 FakeMediaDatabase::gen_slug().as_str(),
                 r#"<div class="inline-block">{media}</div>"#,
                 ImageMedia {
-                    url: String::from("https://cloud.fs.holycharisma.com/party.png"),
+                    url: String::from("https://cloud.bunny.holycharisma.com/party.png"),
                 },
             ),
 
@@ -249,7 +249,7 @@ impl FakeMediaDatabase {
                 r#"{media}"#,
                 AudioMedia {
                     title: String::from("metanoia"),
-                    url: String::from("https://cloud.fs.holycharisma.com/metanoia.mp3"),
+                    url: String::from("https://cloud.bunny.holycharisma.com/metanoia.mp3"),
                     duration: 278,
                     khz: 48,
                     kbps: 192,
@@ -261,7 +261,7 @@ impl FakeMediaDatabase {
                 AudioMedia {
                     title: String::from("untitled love loop"),
                     url: String::from(
-                        "https://cloud.fs.holycharisma.com/untitled-love-loop.mp3",
+                        "https://cloud.bunny.holycharisma.com/untitled-love-loop.mp3",
                     ),
                     duration: 15,
                     khz: 44,
@@ -273,7 +273,7 @@ impl FakeMediaDatabase {
                 r#"{media}"#,
                 AudioMedia {
                     title: String::from("ready"),
-                    url: String::from("https://cloud.fs.holycharisma.com/ready.mp3"),
+                    url: String::from("https://cloud.bunny.holycharisma.com/ready.mp3"),
                     duration: 186,
                     khz: 44,
                     kbps: 320,
@@ -284,7 +284,7 @@ impl FakeMediaDatabase {
                 r#"{media}"#,
                 AudioMedia {
                     title: String::from("fly 2 infinity"),
-                    url: String::from("https://cloud.fs.holycharisma.com/fly_to_infinity.mp3"),
+                    url: String::from("https://cloud.bunny.holycharisma.com/fly_to_infinity.mp3"),
                     duration: 231,
                     khz: 44,
                     kbps: 320,

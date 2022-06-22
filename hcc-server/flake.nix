@@ -19,6 +19,7 @@
             cargo
             cargo-watch
             pkg-config
+            glibc
             openssl
             openssl.bin
           ];
