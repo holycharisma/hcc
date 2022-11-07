@@ -22,6 +22,9 @@
             glibc
             openssl
             openssl.bin
+            (rust-bin.stable.latest.default.override {
+              extensions = [ "rust-src" ];
+            })
           ];
               
            shellHook = "

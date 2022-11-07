@@ -10,6 +10,8 @@ pub mod media;
 
 pub mod brand;
 
+pub mod promo;
+
 pub mod dummy_secret;
 
 pub mod disconnect;

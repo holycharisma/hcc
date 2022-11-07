@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<script src="https://cdn.jsdelivr.net/npm/holderjs@2.9.9/holder.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>	
+	<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+	
+	<title>Holy Charisma</title>
+
+</head>
+<body>
+	<header>
+		<div class="header-image">
+			<img src="holder.js/300x200">
+		</div>
+		<div class="header-title">
+			<h1>Holy Charisma</h1>
+		</div>
+		<div class="social-links">
+			<ul>
+				<li class="inline-block">
+					<ion-icon name="heart"></ion-icon>
+				</li>
+				<li class="inline-block">
+					<ion-icon name="heart"></ion-icon>
+				</li>
+				<li class="inline-block">
+					<ion-icon name="heart"></ion-icon>
+				</li>
+			</ul>
+		</div>
+	</header>
+	<hr />
+	<div class="bio-and-video">
+		<div class="bio">
+			<p />I'm baby banjo you probably haven't heard of them vice synth irony. Master cleanse tacos etsy twee seitan vice. Snackwave raw denim adaptogen gastropub JOMO pork belly slow-carb +1 keffiyeh. Pour-over tilde hammock subway tile humblebrag plaid woke. 3 wolf moon skateboard vaporware, iPhone pinterest tumeric butcher iceland ethical taiyaki bitters blue bottle vice meggings. Farm-to-table affogato man braid neutra organic, pop-up green juice PBR&B.
+		</div>
+		<hr />
+		<div class="video">
+			<!-- youtube embed -->
+			<iframe width="560" height="315" 
+							src="https://www.youtube.com/embed/cVVbyfSgNdI"
+							title="YouTube video player" 
+							frameborder="0" 
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+							allowfullscreen></iframe>
+		</div>
+		<hr />
+	</div>
+	<div class="music">
+
+		<!-- some amplitude js player stuff here ... -->
+		<!-- https://serversideup.net/building-a-single-song-player/ -->
+		
+		<!-- design inspo from https://dribbble.com/shots/6957353-Music-Player-Widget -->
+		<!-- react demo @ https://codepen.io/abxlfazl/pen/YzGEVRP -->
+		
+		<!-- design cards: https://tailwindcomponents.com/component/music-player-cards -->
+		<!-- ampltidue js multi song demo https://codepen.io/serversideup/pen/QPjNYv -->
+		
+		<img src="" data-amplitude-song-info="cover_art_url" data-amplitude-main-song-info="true"/>
+
+		<progress
+			class="amplitude-song-played-progress" 
+			id="song-played-progress"		
+			data-amplitude-main-song-played-progress="true"></progress>
+
+		<div class="time-container">
+		  <span class="current-time">
+		    <span class="amplitude-current-minutes" data-amplitude-main-current-minutes="true"></span>:<span class="amplitude-current-seconds" amplitude-main-current-seconds="true"></span>
+		  </span>
+		  <span class="duration">
+		    <span class="amplitude-duration-minutes" data-amplitude-main-duration-minutes="true"></span>:<span class="amplitude-duration-seconds" amplitude-main-duration-seconds="true"></span>
+		  </span>
+		</div>
+		<div class="control-container">
+		  <div class="amplitude-play-pause" data-amplitude-main-play-pause="true" id="play-pause">Play/Pause</div>
+		</div>
+		<div class="meta-container">
+		  <span data-amplitude-song-info="name" data-amplitude-main-song-info="true" class="song-name"></span>
+			//
+		  <span data-amplitude-song-info="artist" data-amplitude-main-song-info="true"></span>
+		</div>
+
+	</div>
+	<div class="photos">
+			<img src="holder.js/300x200" />
+			<img src="holder.js/300x200" />
+			<img src="holder.js/300x200" />
+	</div>
+	
+	
+	
+	<script src="https://unpkg.com/ionicons@latest/dist/ionicons.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/amplitudejs@v5.3.2/dist/amplitude.js"></script>
+	
+	<script>
+  Amplitude.init({
+    "songs": [
+      {
+        "name": "Untitled Love Loop",
+        "artist": "Holy Charisma",
+        "album": "Missing Tracks",
+        "url": "https://cloud.bunny.holycharisma.com/untitled-love-loop.mp3",
+				"cover_art_url": "https://cloud.bunny.holycharisma.com/sidebar.png"
+      }
+    ]
+  });
+	</script>
+</body>
+</html>

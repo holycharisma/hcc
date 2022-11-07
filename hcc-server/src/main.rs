@@ -58,6 +58,8 @@ async fn main() -> tide::Result<()> {
 
     app.at("/media").get(routes::media::list::get);
 
+    app.at("/promo").get(routes::promo::get);
+
     app.at("/header").get(routes::brand::get_header);
     app.at("/splash").get(routes::brand::get_splash);
     app.at("/sidebar").get(routes::brand::get_sidebar);

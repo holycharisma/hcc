@@ -23,7 +23,7 @@
 
           shellHook = "
                 stat .cargo-nix-local/bin/sea > /dev/null && echo 'sea-orm-cli installed' || \ 
-                cargo install sea-orm-cli --bin sea --root .cargo-nix-local/
+                cargo install sea-orm-cli --version '^0.8.1' --bin sea --root .cargo-nix-local/
           ";
         }) { pkgs = pkgs; });
     };

@@ -28,7 +28,7 @@ you should have your hcc-server secrets set up first:
 
 `which sea`
 
-`sea migrate`
+`DATABASE_URL=$HCC_POSTGRES_SQL_CONNECTION_URL sea migrate`
 
 to code-generate entities into the server project:
 
