@@ -1,14 +1,9 @@
 use tide::prelude::*;
-use tide::{http::mime, Redirect, Request, Response, Result};
+use tide::{http::mime, Request, Response, Result};
 
-use crate::dao;
-use crate::util::emoji;
 use crate::util::encryption;
-use crate::util::password::PasswordUtil;
+
 use crate::wiring::ServerWiring;
-
-use domain::session::SessionUser;
-
 use tinytemplate::TinyTemplate;
 
 use askama::Template; // bring trait in scope

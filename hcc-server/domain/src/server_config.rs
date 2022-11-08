@@ -11,4 +11,5 @@ pub struct ServerConfig {
     pub bind_url: String,
     pub super_user_email: String,
     pub super_user_pwhash_emoji: String,
+    pub client_dist_dir: String,
 }

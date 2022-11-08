@@ -49,6 +49,8 @@ impl ServerWiring {
                 .expect("Invalid configuration: HCC_SUPER_USER_EMAIL required"),
             super_user_pwhash_emoji: env::var("HCC_SUPER_USER_PWHASH_EMOJI")
                 .expect("Invalid configuration: HCC_SUPER_USER_PWHASH_EMOJI required"),
+            client_dist_dir: env::var("HCC_CLIENT_DIST_DIR")
+                .expect("Invalid configuration: HCC_CLIENT_DIST_DIR required"),
         }
     }
 
@@ -64,7 +66,7 @@ impl ServerWiring {
                 tide::log::info!("sea-orm connect: OK!");
                 db
             },
-            config: config,
+            config: server_config.to_owned(),
         };
         Ok(server_state)
     }

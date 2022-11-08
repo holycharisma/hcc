@@ -77,7 +77,9 @@ async fn main() -> tide::Result<()> {
     // they should probably be through some kind of CDN or somethin
 
     // TODO: would be nice if this was a little smarter
-    let hcc_client_dist = "./hcc-client/dist/";
+    let hcc_client_dist = config.client_dist_dir;
+
+    // "/home/orpheus/src/hcc/hcc-client/dist/# ";
     let favicon_path = format!("{}{}", hcc_client_dist, "favicon.svg");
 
     app.at("/hcc/*")
