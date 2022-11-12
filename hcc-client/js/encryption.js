@@ -1,4 +1,11 @@
-const ORIGIN = String(document.referrer).replace(/\/$/, "");
+
+let origin = "";
+try {
+  origin = new URL(document.referrer).origin;
+} catch (e) {
+  console.warn("Failed to parse document origin", document && document.referrer)
+}
+
 
 const [antiForgeryKey, encryptionKey] = ["au", "af", "ec"];
 const TOKEN_DB = {
@@ -23,8 +30,8 @@ function onLoad(cb) {
 function handleEvent(event) {
   // console.log("handling event:", event);
   
-  if (event.origin !== ORIGIN) {
-    // console.log("I DONT LKE YOUR ORIGIN!");
+  if (event && event.origin !== origin) {
+    // console.log("I DONT LKE YOUR ORIGIN!", origin, "!=", event.origin);
     return;
   } else if (!window.recv_claims || !window.EphemeralSharedKeyring) {
     // console.log("I AM NOT READY TO RECEIVE THESE CLAIMS");
@@ -35,7 +42,7 @@ function handleEvent(event) {
     return;
   }
 
-  let claims = recv_claims(ORIGIN, event.data.token);
+  let claims = recv_claims(origin, event.data.token);
 
   let keyring = new EphemeralSharedKeyring(claims);
 

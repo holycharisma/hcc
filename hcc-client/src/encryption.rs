@@ -1,9 +1,9 @@
 #![allow(dead_code, unused_imports)]
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use orion::kex::{SecretKey};
 use orion::aead;
+use orion::kex::SecretKey;
 
 use super::emoji;
 
@@ -21,7 +21,7 @@ macro_rules! expect_two {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct EncryptedKeyring {
-    b: String
+    b: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,7 +29,7 @@ struct JsonClaims {
     exp: i32,
     iss: String,
     keyring: EncryptedKeyring,
-    sid: String
+    sid: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -37,27 +37,27 @@ struct TopSecretSharedKeyring {
     a: String,
     b: String,
     x: String,
-    y: String
+    y: String,
 }
-
 
 #[wasm_bindgen]
 pub struct SharedKeyring {
     broadcast_secret: Vec<u8>,
-    user_secret: Vec<u8>
+    user_secret: Vec<u8>,
 }
 
 #[wasm_bindgen]
 impl SharedKeyring {
     #[wasm_bindgen(constructor)]
     pub fn new(decrypted_secrets: JsValue) -> SharedKeyring {
-        let convert: TopSecretSharedKeyring = serde_wasm_bindgen::from_value(decrypted_secrets).unwrap();
-        SharedKeyring { 
+        let convert: TopSecretSharedKeyring =
+            serde_wasm_bindgen::from_value(decrypted_secrets).unwrap();
+        SharedKeyring {
             broadcast_secret: emoji::decode(&convert.x),
-            user_secret: emoji::decode(&convert.y)
-         }
+            user_secret: emoji::decode(&convert.y),
+        }
     }
-    
+
     pub fn decrypt(&self, encrypted: &str) -> String {
         let secret = SecretKey::from_slice(&self.broadcast_secret).unwrap();
 
@@ -84,7 +84,7 @@ impl SharedKeyring {
         let bytes = aead::open(&secret, &message_bytes).unwrap();
         String::from_utf8(bytes).expect("invalid utf8")
     }
-    
+
     pub fn encrypt(&self, plaintext: &str) -> String {
         let secret = SecretKey::from_slice(&self.user_secret).unwrap();
         let bytes = aead::seal(&secret, plaintext.as_bytes()).unwrap();
@@ -100,24 +100,21 @@ impl SharedKeyring {
     pub fn empty() -> SharedKeyring {
         Self {
             broadcast_secret: vec![],
-            user_secret: vec![]
+            user_secret: vec![],
         }
     }
 }
 
-
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace=JSON)]
-    pub fn parse(message: &str) -> JsValue; 
+    pub fn parse(message: &str) -> JsValue;
 
     pub fn atob(message: &str) -> String;
 }
 
-
 #[wasm_bindgen]
-pub fn recv_claims(issuer: &str, csrf_signed: &str,) -> JsValue {
-
+pub fn recv_claims(issuer: &str, csrf_signed: &str) -> JsValue {
     let (_signature, message) = expect_two!(csrf_signed.rsplitn(2, '.'));
     let (_header, claims) = expect_two!(message.splitn(2, '.'));
 
@@ -130,16 +127,16 @@ pub fn recv_claims(issuer: &str, csrf_signed: &str,) -> JsValue {
     let claims_json: JsonClaims = serde_wasm_bindgen::from_value(decoded).unwrap();
 
     if claims_json.iss == issuer {
-        let secret_slice = emoji::EmojiEncodedBytes::blake_hash_to_secret(claims_json.sid.as_bytes().to_owned());
+        let secret_slice =
+            emoji::EmojiEncodedBytes::blake_hash_to_secret(claims_json.sid.as_bytes().to_owned());
 
         let message = emoji::decode(&claims_json.keyring.b);
         let secret: SecretKey = SecretKey::from_slice(&secret_slice).unwrap();
-    
+
         let bytes = aead::open(&secret, &message).unwrap();
         let json = String::from_utf8(bytes).unwrap();
         parse(&json)
     } else {
         parse("{}")
     }
-    
 }

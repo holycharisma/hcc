@@ -21,13 +21,13 @@ import("../pkg/index.js").then((x => {
         
         let encryption = obj.default;
 
+        // console.log("encryption module loaded", encryption);
+
         encryption.onEncryptionLoad(function() {
             
             import("./htmx.js").then(_ => {
             
-                // console.log("encryption module loadeed", encryption);
-        
-                // console.log("encryption load called");
+                // console.log("htmx module loaded");
                 render();
     
             });
