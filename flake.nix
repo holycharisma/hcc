@@ -47,8 +47,6 @@
                 stat .secrets/jwtRS256.key > /dev/null || ssh-keygen -t rsa -b 4096 -m PEM -f ./.secrets/jwtRS256.key
                 stat .secrets/jwtRS256.key.pub > /dev/null || openssl rsa -in jwtRS256.key -pubout -outform PEM -out ./.secrets/jwtRS256.key.pub
 
-                mkdir -p hcc-server/.secrets && touch hcc-server/.secrets/.env
-
                 stat hcc-db/.cargo-nix-local/bin/sea > /dev/null || cargo install sea-orm-cli --version '^0.8.1' --bin sea --root hcc-db/.cargo-nix-local/
         '';
         };
